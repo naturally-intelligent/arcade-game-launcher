@@ -1,4 +1,5 @@
 extends Control
+class_name GamesCarousel
 
 @export var button_offset: Vector2
 
@@ -22,13 +23,15 @@ func _input(event: InputEvent):
 func create_game_buttons(game_button: PackedScene, to_create: Dictionary) -> Array:
 	var count: int = 0
 	for key in to_create.keys():
-		var instance: Button = game_button.instantiate()
-		instance.game_name = key
-		instance.properties = to_create[key]
-		add_child(instance)
-		instance.position -= instance.size / 2.0
-		instance.position.x += (instance.size.x + button_offset.x) * count
-		count += 1
+		var game: Game = to_create[key]
+		if game.visible:
+			var instance: GameButton = game_button.instantiate()
+			instance.game_name = game.subdirectory
+			instance.properties = game
+			add_child(instance)
+			instance.position -= instance.size / 2.0
+			instance.position.x += (instance.size.x + button_offset.x) * count
+			count += 1
 	
 	if get_child_count() > 0: 
 		# Call deferred to make sure the app has time to connect focus signal and react accordingly

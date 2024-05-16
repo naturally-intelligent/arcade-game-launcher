@@ -31,6 +31,7 @@ grow_vertical = 2
 script = ExtResource("1_ov0up")
 game_button = ExtResource("2_t5myg")
 default_bg = ExtResource("3_0g1gi")
+platform = "linux"
 
 [node name="BG" type="TextureRect" parent="."]
 self_modulate = Color(0.486275, 0.486275, 0.486275, 1)

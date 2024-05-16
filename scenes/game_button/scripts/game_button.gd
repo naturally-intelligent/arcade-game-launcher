@@ -1,9 +1,11 @@
+# GAME BUTTON
 extends Button
+class_name GameButton
 
 signal focused(who: Button)
 
 var game_name: String 
-var properties: Dictionary
+var properties: Game
 var tween: Tween
 
 @onready var capsule: TextureRect = $Capsule
@@ -14,15 +16,15 @@ func _ready() -> void:
 	
 	cross.visible = false
 	
-	if properties.has("capsule"):
-		var tex: ImageTexture = load_image_texture(properties["capsule"])
+	if properties.file("capsule"):
+		var tex: ImageTexture = load_image_texture(properties.file("capsule"))
 		if not tex: return
 		capsule.texture = tex
 
 func load_image_texture(path: String) -> ImageTexture:
 	var capsule_im: Image = Image.new()
 	if capsule_im.load(path) != OK:
-		print("BAD STUFF, CANT LOAD CAPSULE AT: ", properties["capsule"])
+		print("BAD STUFF, CANT LOAD CAPSULE AT: ", properties.file("capsule"))
 		return null
 	else:
 		var tex: ImageTexture = ImageTexture.new()
