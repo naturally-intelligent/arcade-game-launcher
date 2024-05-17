@@ -157,7 +157,7 @@ func parse_games(path: String) -> void:
 func launch_game(game_name: String) -> void:
 	if not games[game_name].executable: return
 	games_container.can_move = false
-	var executable_path: String = games[game_name].executable
+	var executable_path: String = games[game_name].file("executable")
 	pid_watching = OS.create_process(executable_path, [])
 	timer.start()
 
