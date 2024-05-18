@@ -5,6 +5,7 @@ extends Control
 @export var default_bg: Texture
 @export_enum("windows", "linux") var platform = "windows"
 @export var enforce_platform := false
+@export var verbose := true
 
 var pid_watching: int = -1
 var games: Dictionary
@@ -20,6 +21,8 @@ var curr_game_btn: Button = null
 
 @onready var check_for_updates := false
 @onready var update_checker := UpdateChecker.new()
+
+const notice_tscn = preload("res://scenes/notice/notice.tscn")
 
 func _ready() -> void:
 	if check_for_updates:
@@ -154,14 +157,27 @@ func parse_games(path: String) -> void:
 		var game: Game = games[key]
 		print(key, " ", game.debug_line())
 	
-func launch_game(game_name: String) -> void:
-	if not games[game_name].executable: return
-	games_container.can_move = false
-	var executable_path: String = games[game_name].file("executable")
-	pid_watching = OS.create_process(executable_path, [])
-	timer.start()
+func launch_game(game_name: String) -> bool:
+	var game: Game = games[game_name]
+	if verbose:
+		add_notice("Launching game: " + game.title)
+	if not game.executable: 
+		add_notice("No executable set for game: " + game.title)
+		return false
+	var executable_path: String = game.file("executable")
+	if FileAccess.file_exists(executable_path):
+		games_container.can_move = false
+		pid_watching = OS.create_process(executable_path, [])
+		timer.start()
+		return true
+	else:
+		print("Missing game executable: ", executable_path)
+		add_notice("Missing executable: " + game.executable)
+		return false
 
 func stop_game(pid: int) -> void:
+	if verbose:
+		add_notice("Returned control to launcher.")
 	if pid_watching < 0: return
 	games_container.can_move = true
 	OS.kill(pid)
@@ -170,6 +186,8 @@ func on_timer_timeout() -> void:
 	if OS.is_process_running(pid_watching):
 		print("Running")
 	else:
+		if verbose:
+			add_notice("Game stopped.")
 		print("Stopped")
 		timer.stop()
 		pid_watching = -1
@@ -202,9 +220,10 @@ func on_game_btn_toggled(state: bool, btn: Button) -> void:
 	# If game already launched, don't launch another one
 	if state:
 		if pid_watching > 0: return
-		games_container.can_move = false
-		launch_game(btn.game_name)
-		curr_game_btn = btn
+		if launch_game(btn.game_name):
+			curr_game_btn = btn
+		else:
+			btn.button_pressed = false
 	else:
 		stop_game(pid_watching)
 
@@ -216,3 +235,12 @@ func on_released_parsed(release: Dictionary) -> void:
 	else:
 		version_btn.text = "You have the latest version: " + release["version"]
 	version_btn.uri = release["url"]
+
+# NOTICES
+
+func add_notice(text: String, add_to_front := false) -> void:
+	var notice: Notice = notice_tscn.instantiate()
+	notice.text = text
+	%Notices.add_child(notice)
+	if add_to_front:
+		%Notices.move_child(notice, 0)

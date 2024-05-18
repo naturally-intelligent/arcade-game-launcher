@@ -1,0 +1,33 @@
+[gd_scene load_steps=2 format=3 uid="uid://brij0la5lpm40"]
+
+[ext_resource type="Script" path="res://scenes/app/scripts/notice.gd" id="1_1qkp7"]
+
+[node name="Notice" type="Label"]
+z_index = 2
+custom_minimum_size = Vector2(0, 32)
+text = "Text Notice 1"
+horizontal_alignment = 1
+vertical_alignment = 1
+script = ExtResource("1_1qkp7")
+
+[node name="ExpireTimer" type="Timer" parent="."]
+wait_time = 5.0
+one_shot = true
+autostart = true
+
+[node name="FadeTimer" type="Timer" parent="."]
+wait_time = 3.0
+one_shot = true
+autostart = true
+
+[node name="Panel" type="Panel" parent="."]
+z_index = -1
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[connection signal="timeout" from="ExpireTimer" to="." method="_on_expire_timer"]
+[connection signal="timeout" from="FadeTimer" to="." method="_on_fade_timer"]
