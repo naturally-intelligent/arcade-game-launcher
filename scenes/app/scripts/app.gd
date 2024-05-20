@@ -9,7 +9,6 @@ extends Control
 
 var pid_watching: int = -1
 var games: Dictionary
-var curr_game_btn: Button = null
 
 @onready var bg: TextureRect = $BG
 @onready var timer: Timer = Timer.new()
@@ -41,7 +40,7 @@ func _ready() -> void:
 	var buttons: Array = games_container.create_game_buttons(game_button, games)
 	for b in buttons:
 		b.focused.connect(on_game_btn_focused)
-		b.toggled.connect(on_game_btn_toggled.bind(b))
+		b.pressed.connect(on_game_btn_pressed.bind(b))
 	
 	# Test
 	#launch_game("Dashpong")
@@ -191,8 +190,6 @@ func on_timer_timeout() -> void:
 		print("Stopped")
 		timer.stop()
 		pid_watching = -1
-		if curr_game_btn:
-			curr_game_btn.button_pressed = false
 		games_container.can_move = true
 		DisplayServer.window_move_to_foreground()
 
@@ -216,16 +213,12 @@ func on_game_btn_focused(who: Button) -> void:
 	bg.blend_textures_animated(bg.get_shader_texture(1), texture, 0.4)
 	#bg.texture = texture
 
-func on_game_btn_toggled(state: bool, btn: Button) -> void:
+func on_game_btn_pressed(btn: Button) -> void:
 	# If game already launched, don't launch another one
-	if state:
-		if pid_watching > 0: return
-		if launch_game(btn.game_name):
-			curr_game_btn = btn
-		else:
-			btn.button_pressed = false
-	else:
+	if pid_watching > 0:
 		stop_game(pid_watching)
+		return
+	launch_game(btn.game_name)
 
 func on_released_parsed(release: Dictionary) -> void:
 	print("release: ", release["version"])
@@ -244,3 +237,10 @@ func add_notice(text: String, add_to_front := false) -> void:
 	%Notices.add_child(notice)
 	if add_to_front:
 		%Notices.move_child(notice, 0)
+
+
+func _on_left_button_pressed():
+	games_container.scroll_left()
+
+func _on_right_button_pressed():
+	games_container.scroll_right()

@@ -56,6 +56,5 @@ func _on_focus_exited():
 func _on_mouse_exited():
 	toggle_focus_visuals(false)
 
-func _on_toggled(toggled_on):
-	#cross.visible = toggled_on
-	pass
+func _on_pressed():
+	print('pressed')

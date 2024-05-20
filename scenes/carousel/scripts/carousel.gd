@@ -5,6 +5,7 @@ class_name GamesCarousel
 
 var tween: Tween
 
+var selected_idx := 0
 var can_move: bool = true
 
 func _ready():
@@ -19,7 +20,7 @@ func _input(event: InputEvent):
 		if can_move:
 			move_right()
 		get_viewport().set_input_as_handled()
-		
+	
 func create_game_buttons(game_button: PackedScene, to_create: Dictionary) -> Array:
 	var count: int = 0
 	for key in to_create.keys():
@@ -39,14 +40,22 @@ func create_game_buttons(game_button: PackedScene, to_create: Dictionary) -> Arr
 		
 	return get_children() 
 
+func scroll_left() -> bool:
+	if can_move:
+		move_left()
+		return true
+	return false
+
+func scroll_right() -> bool:
+	if can_move:
+		move_right()
+		return true
+	return false
+
 func move_left() -> void:
-	var idx: int = 0
-	if get_viewport().gui_get_focus_owner():
-		idx = get_viewport().gui_get_focus_owner().get_index()
-		
-	if idx == 0: return
+	if selected_idx == 0: return
 	
-	var next_idx: int = idx - 1
+	var next_idx: int = selected_idx - 1
 	
 	if tween and tween.is_running():
 		tween.kill()
@@ -64,17 +73,15 @@ func move_left() -> void:
 		#tween.tween_property(c, "rotation_degrees", 360.0, 0.3).from(0.0)
 		#c.position.x += (c.size.x + button_offset.x)
 	
+	selected_idx = next_idx
+	
 	# Select the next button
-	get_child(idx - 1).grab_focus()
+	get_child(selected_idx).grab_focus()
 
 func move_right() -> void:
-	var idx: int = 0
-	if get_viewport().gui_get_focus_owner():
-		idx = get_viewport().gui_get_focus_owner().get_index()
-		
-	if idx == get_child_count() - 1: return
+	if selected_idx == get_child_count() - 1: return
 	
-	var next_idx: int = idx + 1
+	var next_idx: int = selected_idx + 1
 	
 	if tween and tween.is_running():
 		tween.kill()
@@ -95,5 +102,7 @@ func move_right() -> void:
 		#tween.tween_property(c, "rotation_degrees", 360.0, 0.3).from(0.0)
 		#c.position.x -= (c.size.x + button_offset.x)
 
+	selected_idx = next_idx 
+	
 	# Select the next button
-	get_child(idx + 1).grab_focus()
+	get_child(selected_idx).grab_focus()

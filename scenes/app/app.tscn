@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://dh01oxe50pj27"]
+[gd_scene load_steps=13 format=3 uid="uid://dh01oxe50pj27"]
 
 [ext_resource type="Script" path="res://scenes/app/scripts/app.gd" id="1_ov0up"]
 [ext_resource type="PackedScene" uid="uid://dweckt5oraox7" path="res://scenes/game_button/game_button.tscn" id="2_t5myg"]
@@ -19,6 +19,8 @@ shader_parameter/texture_2 = ExtResource("5_o0uvn")
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_qsltc"]
 shader = ExtResource("3_n8sr3")
 shader_parameter/lod = 4.731
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_wttou"]
 
 [node name="App" type="Control"]
 process_mode = 3
@@ -41,6 +43,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
 texture = ExtResource("3_0g1gi")
 script = ExtResource("6_2ddv3")
 
@@ -53,6 +56,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
 texture = ExtResource("3_0g1gi")
 
 [node name="Darken" type="ColorRect" parent="."]
@@ -63,6 +67,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
 color = Color(0.121569, 0.121569, 0.121569, 1)
 
 [node name="Games" type="Control" parent="."]
@@ -146,16 +151,6 @@ theme_override_font_sizes/font_size = 24
 text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
 autowrap_mode = 3
 
-[node name="MouseFilter" type="ColorRect" parent="."]
-visible = false
-self_modulate = Color(1, 1, 1, 0)
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
 [node name="Notices" type="VBoxContainer" parent="."]
 unique_name_in_owner = true
 layout_mode = 0
@@ -164,3 +159,29 @@ offset_top = 9.0
 offset_right = 1474.0
 offset_bottom = 242.0
 theme_override_constants/separation = 3
+
+[node name="LeftButton" type="Button" parent="."]
+layout_mode = 0
+offset_right = 100.0
+offset_bottom = 1080.0
+focus_mode = 1
+theme_override_styles/normal = SubResource("StyleBoxEmpty_wttou")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_wttou")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_wttou")
+theme_override_styles/disabled = SubResource("StyleBoxEmpty_wttou")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_wttou")
+
+[node name="RightButton" type="Button" parent="."]
+layout_mode = 0
+offset_left = 1820.0
+offset_right = 1920.0
+offset_bottom = 1080.0
+focus_mode = 1
+theme_override_styles/normal = SubResource("StyleBoxEmpty_wttou")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_wttou")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_wttou")
+theme_override_styles/disabled = SubResource("StyleBoxEmpty_wttou")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_wttou")
+
+[connection signal="button_up" from="LeftButton" to="." method="_on_left_button_pressed"]
+[connection signal="button_up" from="RightButton" to="." method="_on_right_button_pressed"]
