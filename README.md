@@ -1,6 +1,9 @@
-# Game launcher
+# Arcade Game launcher
 
-A simple game launcher for developers to showcase their games. Especially useful during gaming conventions for example. 
+A simple game launcher meant as a frontend for an arcade machine. Especially useful for game jams. 
+
+Based on Godot Game Launcher from MrEliptik:
+https://github.com/MrEliptik/game_launcher
 
 *⚠ It's not aimed as being shipped with your game on Steam or other platforms.*
 
@@ -17,6 +20,7 @@ A simple game launcher for developers to showcase their games. Especially useful
 5. The capsule must be named **capsule** with the following extensions supported: jpg, jpeg, png
 6. The background image bust be named **bg** with the following extensions supported: jpg, jpeg, png
 7. In **description.txt**, put the description you want to see below your game capsule in the launcher
+8. In the optional **config.ini** you can override the above values and add more details.
 
 Here's an example folder  
 game_launcher.exe  
@@ -25,8 +29,9 @@ game_launcher.exe
 │   │   ├── game_executable.exe  
 │   │   ├── capsule.jpg  
 │   │   └── bg.jpg  
+│   │   └── config.ini
 
-You can also check the **Fake** folder to see a game example
+
 
 ## How to navigate
 
@@ -36,13 +41,17 @@ Navigate using keyboard or gamepad using the usual keys used for navigation (arr
 
 ## Limitations
 
-Right now, the launcher is only working with windows. Supporting linux and mac shouldn't be complicated, we just need to detect the correct extensions or file types. 
+Right now, the launcher supports windows and linux. Mac shouldn't be complicated, we just need to detect the correct extensions or file types. 
+
+All games or shortcuts must be placed inside the project subdirectory.
 
 ## Development
 
 For development, you can use the **games** folder present in the project using the same configuration as explained above.
 
 ## 💁‍♂️ About me
+
+MrEliptik is the original creator of the game launcher. Here is his info:
 
 Full time indie gamedev. You can find me everywhere 👇
 

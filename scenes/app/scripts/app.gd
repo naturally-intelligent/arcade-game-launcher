@@ -238,9 +238,16 @@ func add_notice(text: String, add_to_front := false) -> void:
 	if add_to_front:
 		%Notices.move_child(notice, 0)
 
+# MOUSE - edge of screen scrolling
 
 func _on_left_button_pressed():
 	games_container.scroll_left()
 
 func _on_right_button_pressed():
+	games_container.scroll_right()
+
+func _on_left_mouse_entered():
+	games_container.scroll_left()
+
+func _on_right_mouse_entered():
 	games_container.scroll_right()

@@ -57,4 +57,4 @@ func _on_mouse_exited():
 	toggle_focus_visuals(false)
 
 func _on_pressed():
-	print('pressed')
+	pass

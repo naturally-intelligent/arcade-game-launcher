@@ -44,13 +44,22 @@ func scroll_left() -> bool:
 	if can_move:
 		move_left()
 		return true
+	focus_selected()
 	return false
 
 func scroll_right() -> bool:
 	if can_move:
 		move_right()
 		return true
+	focus_selected()
 	return false
+
+func focus_selected() -> void:
+	var child = get_child(selected_idx)
+	if child: 
+		child.grab_focus()
+	else:
+		print("WARNING: could not find carousel child ", selected_idx)
 
 func move_left() -> void:
 	if selected_idx == 0: return
@@ -66,17 +75,10 @@ func move_left() -> void:
 		var diff: int = next_idx - i
 		tween.tween_property(c, "position:x", -(c.size.x/2.0) - ((c.size.x + button_offset.x) * diff), 0.3)
 	
-	#Old method, will bug out if you go too fast
-	#for i in range(get_child_count()):
-		#var c: Button = get_child(i)
-		#tween.tween_property(c, "position:x", c.position.x + (c.size.x + button_offset.x), 0.3)
-		#tween.tween_property(c, "rotation_degrees", 360.0, 0.3).from(0.0)
-		#c.position.x += (c.size.x + button_offset.x)
-	
 	selected_idx = next_idx
 	
 	# Select the next button
-	get_child(selected_idx).grab_focus()
+	focus_selected()
 
 func move_right() -> void:
 	if selected_idx == get_child_count() - 1: return
@@ -93,16 +95,8 @@ func move_right() -> void:
 		# -(c.size.x/2.0) is to offset the button to be in the center, otherwise it's positionned
 		# with the top left corner
 		tween.tween_property(c, "position:x", -(c.size.x/2.0) + ((c.size.x + button_offset.x) * diff), 0.3)
-	
-	#Old method, will bug out if you go too fast
-	#for i in range(get_child_count()):
-		#var c: Button = get_child(i)
-		#tween.tween_property(c, "position:x", c.position.x - (c.size.x + button_offset.x), 0.3)
-		
-		#tween.tween_property(c, "rotation_degrees", 360.0, 0.3).from(0.0)
-		#c.position.x -= (c.size.x + button_offset.x)
 
 	selected_idx = next_idx 
 	
 	# Select the next button
-	get_child(selected_idx).grab_focus()
+	focus_selected()
