@@ -1,6 +1,6 @@
-# Arcade Game launcher
+# Arcade Game Launcher
 
-A simple game launcher meant as a frontend for an arcade machine. Especially useful for game jams. 
+A simple game launcher meant as a frontend for an arcade cabinet. Especially useful for showcasing a bunch of games from game jams. 
 
 Based on Godot Game Launcher from MrEliptik:
 https://github.com/MrEliptik/game_launcher
@@ -49,9 +49,13 @@ All games or shortcuts must be placed inside the project subdirectory.
 
 For development, you can use the **games** folder present in the project using the same configuration as explained above.
 
-## 💁‍♂️ About me
+## Arcade Fork
 
-MrEliptik is the original creator of the game launcher. Here is his info:
+We forked this launcher to make a version for CGDA (Calgary Game Developers Association, https://www.calgary.games/). This is for a standup arcade cabinet, used for gamejam collections and showcasing locally made games.
+
+## 💁‍♂️ About MrEliptik
+
+MrEliptik is the original creator of the game launcher.
 
 Full time indie gamedev. You can find me everywhere 👇
 
