@@ -6,6 +6,7 @@ extends Control
 @export_enum("windows", "linux") var platform = "windows"
 @export var enforce_platform := false
 @export var verbose := true
+@export var autoscan := true
 
 var pid_watching: int = -1
 var games: Dictionary
@@ -18,25 +19,37 @@ var games: Dictionary
 @onready var description: Label = $Description/Description
 @onready var version_btn = $VersionBtn
 
-@onready var check_for_updates := false
+@onready var check_for_updates := true
 @onready var update_checker := UpdateChecker.new()
+
+var launcher_config: ConfigFile
+var launcher_config_file := "res://launcher.ini"
 
 const notice_tscn = preload("res://scenes/notice/notice.tscn")
 
 func _ready() -> void:
+	# UPDATES
 	if check_for_updates:
 		add_child(update_checker)
 		update_checker.get_latest_version()
 		update_checker.release_parsed.connect(on_released_parsed)
+
+	# LAUNCHER CONFIG
+	load_launcher_config()
 	
+	# SETUP
 	configure_timer()
 	var base_dir: String = ProjectSettings.globalize_path("res://") if OS.has_feature("editor") else OS.get_executable_path().get_base_dir()
 	create_game_folder(base_dir)
-	parse_games(base_dir.path_join("games"))
+	manually_add_games(base_dir.path_join("games"))
+	if autoscan:
+		scan_for_games(base_dir.path_join("games"))
 	
+	# WARNINGS
 	if games.is_empty():
 		no_game_found.visible = true
 	
+	# UI
 	var buttons: Array = games_container.create_game_buttons(game_button, games)
 	for b in buttons:
 		b.focused.connect(on_game_btn_focused)
@@ -78,7 +91,7 @@ func create_game_folder(base_dir: String) -> void:
 	if dir.dir_exists(base_dir.path_join("games")): return
 	dir.make_dir(base_dir.path_join("games"))
 
-func parse_games(path: String) -> void:
+func scan_for_games(path: String) -> void:
 	var dir := DirAccess.open(path)
 	
 	dir.include_hidden = false
@@ -96,57 +109,7 @@ func parse_games(path: String) -> void:
 		if dir.current_is_dir():
 			print("Found game subdirectory: " + game_dir)
 			var subdir_path: String = path.path_join(game_dir)
-			var subdir := DirAccess.open(subdir_path)
-			var game := Game.new()
-			game.subdirectory = game_dir
-			game.subdirectory_path = subdir.get_current_dir()
-			subdir.list_dir_begin()
-			var file = subdir.get_next()
-			while file != "":
-				if not subdir.current_is_dir():
-					var extension: String = file.get_extension().to_lower()
-					var check_dir: String = subdir.get_current_dir()
-					var check_file: String = subdir.get_current_dir().path_join(file)
-					var basename: String = file.get_basename()
-					match extension:
-						"exe":
-							if platform == "windows" or not enforce_platform:
-								print("Executable: ", check_dir)
-								game.executable = file
-								game.platform = 'windows'
-						"x86_64", "sh":
-							if platform == "linux" or not enforce_platform:
-								print("Executable: ", check_dir)
-								game.executable = file
-								game.platform = 'linux'
-						"dmg":
-							#TODO: make functional with mac (add osx to platforms enum at top)
-							if platform == "osx" or not enforce_platform:
-								print("OSX Executable: Not supported")
-								game.platform = 'osx'
-						"jpg", "jpeg", "png":
-							if basename == "capsule":
-								game.capsule = file
-							elif basename == "bg":
-								game.background = file
-						"txt":
-							if basename == "description":
-								var text_file = FileAccess.open(check_file, FileAccess.READ)
-								var content = text_file.get_as_text()
-								game.description = content
-						"ini", "cfg":
-							if basename == "config":
-								var config = ConfigFile.new()
-								var status = config.load(check_file)
-								if status == OK:
-									game.config = config
-								else:
-									print("WARNING: bad config file ", status)
-
-				file = subdir.get_next() # while
-			# check config for overrides (must be done last)
-			game.parse_config()
-			games[game_dir] = game
+			add_game_from_directory(subdir_path, game_dir)
 			
 		game_dir = dir.get_next()
 	
@@ -155,6 +118,74 @@ func parse_games(path: String) -> void:
 	for key in games:
 		var game: Game = games[key]
 		print(key, " ", game.debug_line())
+	
+func manually_add_games(path: String) -> void:
+	if launcher_config.has_section("GAMES"):
+		for key in launcher_config.get_section_keys("GAMES"):
+			var game_data = launcher_config.get_value("GAMES", key)
+			if typeof(game_data) == TYPE_STRING:
+				var game_dir = key
+				var subdir_path = game_data
+				add_game_from_directory(subdir_path, game_dir)	
+			elif typeof(game_data) == TYPE_ARRAY and game_data.size() == 2:
+				var game_dir = game_data[0]
+				var subdir_path = game_data[1]
+				add_game_from_directory(subdir_path, game_dir)
+	
+func add_game_from_directory(subdir_path: String, game_dir: String) -> void:
+	print("add_game_from_directory: ", game_dir, " ", subdir_path)
+	var subdir := DirAccess.open(subdir_path)
+	var game := Game.new()
+	game.subdirectory = game_dir
+	game.subdirectory_path = subdir.get_current_dir()
+	subdir.list_dir_begin()
+	var file = subdir.get_next()
+	while file != "":
+		if not subdir.current_is_dir():
+			var extension: String = file.get_extension().to_lower()
+			var check_dir: String = subdir.get_current_dir()
+			var check_file: String = subdir.get_current_dir().path_join(file)
+			var basename: String = file.get_basename()
+			match extension:
+				"exe":
+					if platform == "windows" or not enforce_platform:
+						print("Executable: ", check_dir)
+						game.executable = file
+						game.platform = 'windows'
+				"x86_64", "sh":
+					if platform == "linux" or not enforce_platform:
+						print("Executable: ", check_dir)
+						game.executable = file
+						game.platform = 'linux'
+				"dmg":
+					#TODO: make functional with mac (add osx to platforms enum at top)
+					if platform == "osx" or not enforce_platform:
+						print("OSX Executable: Not supported")
+						game.platform = 'osx'
+				"jpg", "jpeg", "png":
+					if basename == "capsule":
+						game.capsule = file
+					elif basename == "bg":
+						game.background = file
+				"txt":
+					if basename == "description":
+						var text_file = FileAccess.open(check_file, FileAccess.READ)
+						var content = text_file.get_as_text()
+						game.description = content
+				"ini", "cfg":
+					if basename == "config":
+						var config = ConfigFile.new()
+						var status = config.load(check_file)
+						if status == OK:
+							game.config = config
+						else:
+							print("WARNING: bad config file ", status)
+
+		file = subdir.get_next() # while
+	# check config for overrides (must be done last)
+	game.parse_config()
+	games[game_dir] = game
+	
 	
 func launch_game(game_name: String) -> bool:
 	var game: Game = games[game_name]
@@ -240,14 +271,30 @@ func add_notice(text: String, add_to_front := false) -> void:
 
 # MOUSE - edge of screen scrolling
 
-func _on_left_button_pressed():
+func _on_left_button_pressed() -> void:
 	games_container.scroll_left()
 
-func _on_right_button_pressed():
+func _on_right_button_pressed() -> void:
 	games_container.scroll_right()
 
-func _on_left_mouse_entered():
+func _on_left_mouse_entered() -> void:
 	games_container.scroll_left()
 
-func _on_right_mouse_entered():
+func _on_right_mouse_entered() -> void:
 	games_container.scroll_right()
+
+# LAUNCHER CONFIG
+
+func load_launcher_config() -> void:
+	launcher_config = ConfigFile.new()
+	if FileAccess.file_exists(launcher_config_file):
+		var status = launcher_config.load(launcher_config_file)
+		if status == OK:
+			platform = launcher_config.get_value("LAUNCHER", "platform", "windows")
+			enforce_platform = launcher_config.get_value("LAUNCHER", "enforce_platform", true)
+			autoscan = launcher_config.get_value("LAUNCHER", "autoscan", true)
+			verbose = launcher_config.get_value("LAUNCHER", "verbose", true)
+			check_for_updates = launcher_config.get_value("LAUNCHER", "check_for_updates", true)
+		else:
+			print("WARNING: bad launcher config file ", status)
+		
