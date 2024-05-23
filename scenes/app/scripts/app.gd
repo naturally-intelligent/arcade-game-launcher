@@ -3,13 +3,16 @@ extends Control
 
 @export var game_button: PackedScene
 @export var default_bg: Texture
-@export_enum("windows", "linux") var platform = "windows"
+@export_enum("windows", "linux") var platform := "windows"
 @export var enforce_platform := false
 @export var verbose := true
 @export var autoscan := true
+@export var verbose_console := true
 
 var pid_watching: int = -1
 var games: Dictionary
+var console_spam := 0
+const console_spam_max = 3
 
 @onready var bg: TextureRect = $BG
 @onready var timer: Timer = Timer.new()
@@ -28,14 +31,14 @@ var launcher_config_file := "res://launcher.ini"
 const notice_tscn = preload("res://scenes/notice/notice.tscn")
 
 func _ready() -> void:
+	# LAUNCHER CONFIG (optional)
+	load_launcher_config()
+	
 	# UPDATES
 	if check_for_updates:
 		add_child(update_checker)
 		update_checker.get_latest_version()
 		update_checker.release_parsed.connect(on_released_parsed)
-
-	# LAUNCHER CONFIG
-	load_launcher_config()
 	
 	# SETUP
 	configure_timer()
@@ -44,6 +47,9 @@ func _ready() -> void:
 	manually_add_games(base_dir.path_join("games"))
 	if autoscan:
 		scan_for_games(base_dir.path_join("games"))
+	
+	# PRINT
+	print_games_to_console()
 	
 	# WARNINGS
 	if games.is_empty():
@@ -107,17 +113,11 @@ func scan_for_games(path: String) -> void:
 	while game_dir != "":
 		# We found a game, explore its content
 		if dir.current_is_dir():
-			print("Found game subdirectory: " + game_dir)
+			print("GAME detected in subdirectory scan: ", game_dir)
 			var subdir_path: String = path.path_join(game_dir)
 			add_game_from_directory(subdir_path, game_dir)
 			
 		game_dir = dir.get_next()
-	
-	# print games found to console
-	print("Games:")
-	for key in games:
-		var game: Game = games[key]
-		print(key, " ", game.debug_line())
 	
 func manually_add_games(path: String) -> void:
 	if launcher_config.has_section("GAMES"):
@@ -126,14 +126,16 @@ func manually_add_games(path: String) -> void:
 			if typeof(game_data) == TYPE_STRING:
 				var game_dir = key
 				var subdir_path = game_data
+				print("GAME detected in config: ", game_dir)
 				add_game_from_directory(subdir_path, game_dir)	
 			elif typeof(game_data) == TYPE_ARRAY and game_data.size() == 2:
 				var game_dir = game_data[0]
 				var subdir_path = game_data[1]
+				print("GAME detected in config array: ", game_dir)
 				add_game_from_directory(subdir_path, game_dir)
 	
 func add_game_from_directory(subdir_path: String, game_dir: String) -> void:
-	print("add_game_from_directory: ", game_dir, " ", subdir_path)
+	print("- add_game_from_directory: ", subdir_path)
 	var subdir := DirAccess.open(subdir_path)
 	var game := Game.new()
 	game.subdirectory = game_dir
@@ -186,11 +188,18 @@ func add_game_from_directory(subdir_path: String, game_dir: String) -> void:
 	game.parse_config()
 	games[game_dir] = game
 	
+func print_games_to_console() -> void:
+	print("\nGAMES:\n")
+	for key in games:
+		var game: Game = games[key]
+		print(key, ": ", game.debug_line())
+
+# LAUNCH 
 	
 func launch_game(game_name: String) -> bool:
 	var game: Game = games[game_name]
-	if verbose:
-		add_notice("Launching game: " + game.title)
+	console_spam = 0
+	add_notice("Launching game: " + game.title, verbose)
 	if not game.executable: 
 		add_notice("No executable set for game: " + game.title)
 		return false
@@ -206,19 +215,18 @@ func launch_game(game_name: String) -> bool:
 		return false
 
 func stop_game(pid: int) -> void:
-	if verbose:
-		add_notice("Returned control to launcher.")
+	add_notice("Returned control to launcher.", verbose)
 	if pid_watching < 0: return
 	games_container.can_move = true
 	OS.kill(pid)
 
 func on_timer_timeout() -> void:
 	if OS.is_process_running(pid_watching):
-		print("Running")
+		if verbose_console or console_spam < console_spam_max:
+			print("Running")
+			console_spam += 1
 	else:
-		if verbose:
-			add_notice("Game stopped.")
-		print("Stopped")
+		add_notice("Game stopped.", verbose)
 		timer.stop()
 		pid_watching = -1
 		games_container.can_move = true
@@ -262,12 +270,14 @@ func on_released_parsed(release: Dictionary) -> void:
 
 # NOTICES
 
-func add_notice(text: String, add_to_front := false) -> void:
-	var notice: Notice = notice_tscn.instantiate()
-	notice.text = text
-	%Notices.add_child(notice)
-	if add_to_front:
-		%Notices.move_child(notice, 0)
+func add_notice(text: String, use_verbose := false, add_to_front := false) -> void:
+	print(text)
+	if verbose or not use_verbose:
+		var notice: Notice = notice_tscn.instantiate()
+		notice.text = text
+		%Notices.add_child(notice)
+		if add_to_front:
+			%Notices.move_child(notice, 0)
 
 # MOUSE - edge of screen scrolling
 
@@ -294,7 +304,9 @@ func load_launcher_config() -> void:
 			enforce_platform = launcher_config.get_value("LAUNCHER", "enforce_platform", true)
 			autoscan = launcher_config.get_value("LAUNCHER", "autoscan", true)
 			verbose = launcher_config.get_value("LAUNCHER", "verbose", true)
+			verbose_console = launcher_config.get_value("LAUNCHER", "verbose_console", true)
 			check_for_updates = launcher_config.get_value("LAUNCHER", "check_for_updates", true)
+			print("SUCCESS: loaded launcher config file\n")
 		else:
 			print("WARNING: bad launcher config file ", status)
 		

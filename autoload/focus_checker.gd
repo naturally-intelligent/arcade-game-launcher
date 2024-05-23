@@ -5,8 +5,8 @@ func _ready():
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_WINDOW_FOCUS_IN:
-		print("Focus enter")
+		#print("Focus enter")
 		get_tree().paused = false
 	elif what == NOTIFICATION_WM_WINDOW_FOCUS_OUT:
-		print("Focus exit")
+		#print("Focus exit")
 		get_tree().paused = true

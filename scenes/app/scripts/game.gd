@@ -57,4 +57,4 @@ func parse_config():
 		attributes[key] = config.get_value("ATTRIBUTES", key)
 	
 func debug_line() -> String:
-	return title + " -> " + executable
+	return "\t\t" + title + " -> \t" + executable

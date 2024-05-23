@@ -26,6 +26,10 @@ func new_version_available(project_version: String, latest_version: String) -> b
 func on_request_completed(result, response_code, headers, body) -> void:
 	var json = JSON.parse_string(body.get_string_from_utf8())
 	
+	if not json:
+		print("ERROR parsing json in update (internet may be unavailable)")
+		return
+	
 	if json.has("message"):
 		print(json["message"])
 		return
