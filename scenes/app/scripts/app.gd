@@ -26,7 +26,7 @@ const console_spam_max = 3
 @onready var update_checker := UpdateChecker.new()
 
 var launcher_config: ConfigFile
-var launcher_config_file := "res://launcher.ini"
+var launcher_config_file := "launcher.ini"
 
 const notice_tscn = preload("res://scenes/notice/notice.tscn")
 
@@ -297,8 +297,12 @@ func _on_right_mouse_entered() -> void:
 
 func load_launcher_config() -> void:
 	launcher_config = ConfigFile.new()
-	if FileAccess.file_exists(launcher_config_file):
-		var status = launcher_config.load(launcher_config_file)
+	# check for config in user:// first, then res://
+	var _config_file = "user://" + launcher_config_file
+	if not FileAccess.file_exists(_config_file):
+		_config_file = "res://" + launcher_config_file
+	if FileAccess.file_exists(_config_file):
+		var status = launcher_config.load(_config_file)
 		if status == OK:
 			platform = launcher_config.get_value("LAUNCHER", "platform", "windows")
 			enforce_platform = launcher_config.get_value("LAUNCHER", "enforce_platform", true)

@@ -20,7 +20,8 @@ https://github.com/MrEliptik/game_launcher
 5. The capsule must be named **capsule** with the following extensions supported: jpg, jpeg, png
 6. The background image bust be named **bg** with the following extensions supported: jpg, jpeg, png
 7. In **description.txt**, put the description you want to see below your game capsule in the launcher
-8. In the optional **config.ini** you can override the above values and add more details.
+8. In the optional **config.ini** you can override the above values and add more details (see Game Config section below).
+9. You may manually add games to the **launcher.ini** file (optional, see Launcher Config section below).
 
 Here's an example folder  
 game_launcher.exe  
@@ -48,6 +49,65 @@ All games or shortcuts must be placed inside the project subdirectory.
 ## Development
 
 For development, you can use the **games** folder present in the project using the same configuration as explained above.
+
+## Launcher Config
+
+Example of an INI config file for the launcher app. 
+
+```
+[LAUNCHER]
+title = "My Launcher"
+autoscan = true
+check_for_updates = true
+verbose = true
+verbose_console = false
+platform = "linux"
+enforce_platform = false
+show_categories = false
+
+# GAMES are optional, and can be written in this format:
+#  id = "/path/to/game"
+[GAMES]
+game_1 = "/home/user/Games/arcade-game-launcher/games/chore4b"
+```
+
+All keys are optional. See source code to explain each key. Detected values will override any values set in the editor. The "id" key/value for the GAMES section is only used internally, and must be unique for each game.
+
+This can be saved as "user://launcher.ini" or "res://launcher.ini", with the first given preference.
+
+## Game Config
+
+Example of a game config INI file. Using a config file for each game is optional, but must be called "config.ini" and placed alongside the game executable. 
+
+```
+[GAME]
+title = "Game Title"
+executable = "Game Executable.exe"
+capsule = "Game Capsule.png"
+background = "Game Background.png"
+description = "Here is a text blurb.\n Remove this line to use description.txt."
+category = ["Tools", "Tests"]
+notice = "Coming Soon"
+arguments = "--fullscreen --keyboard"
+
+[SETTINGS]
+order = 4
+visible = true
+available = true
+pinned = false
+
+[ATTRIBUTES]
+singleplayer = false
+multiplayer = true
+coop = true
+pvp = true
+```
+
+Config file keys for title, executable, capsule, and background will override any values detected in the directory scan. 
+
+Set 'visible = false' to quickly hide broken games without deleting them.
+
+All keys are optional. See source code to explain each key. Some keys may not yet be implemented, or shown as future possibilities.
 
 ## Arcade Fork
 
