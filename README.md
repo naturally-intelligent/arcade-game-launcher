@@ -64,6 +64,17 @@ verbose_console = false
 platform = "linux"
 enforce_platform = false
 show_categories = false
+show_version = true
+overlay = "an-overlay-image.png"
+
+[AUTOMATION]
+autoscroll = true
+autoscroll_time = 5
+autoscroll_start_time = 45
+screensaver = true
+screensaver_title = "My Arcade"
+screensaver_time = 300
+screensaver_image = "my-screensaver.png"
 
 # GAMES are optional, and can be written in this format:
 #  id = "/path/to/game"
@@ -111,11 +122,22 @@ All keys are optional. See source code to explain each key. Some keys may not ye
 
 ## Arcade Fork
 
-We forked this launcher to make a version for CGDA (Calgary Game Developers Association, https://www.calgary.games/). This is for a standup arcade cabinet, used for gamejam collections and showcasing locally made games.
+We forked this launcher to make a version for CGDA (Calgary Game Developers Association, https://www.calgary.games/). This is for a standup arcade cabinet, used for gamejam collections and showcasing locally made games. 
+
+New features of this fork include:
+- Screensaver
+- Autoscroll
+- INI Configs
+- Popup Notices
+- Mouse Support
+- Overlay Image
+- Categories (TODO)
+
+Depending on MrEliptik's decisions, these features may or may not be moved to the main launcher repo. If you don't need the added complexity of these new features and just want to demo your games, you can be confident in using the original repo!
 
 ## 💁‍♂️ About MrEliptik
 
-MrEliptik is the original creator of the game launcher.
+MrEliptik is the original creator of the game launcher:
 
 Full time indie gamedev. You can find me everywhere 👇
 

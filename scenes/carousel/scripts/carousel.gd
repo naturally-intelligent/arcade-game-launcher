@@ -42,15 +42,13 @@ func create_game_buttons(game_button: PackedScene, to_create: Dictionary) -> Arr
 
 func scroll_left() -> bool:
 	if can_move:
-		move_left()
-		return true
+		return move_left()
 	focus_selected()
 	return false
 
 func scroll_right() -> bool:
 	if can_move:
-		move_right()
-		return true
+		return move_right()
 	focus_selected()
 	return false
 
@@ -61,8 +59,9 @@ func focus_selected() -> void:
 	else:
 		print("WARNING: could not find carousel child ", selected_idx)
 
-func move_left() -> void:
-	if selected_idx == 0: return
+func move_left() -> bool:
+	if selected_idx == 0: 
+		return false
 	
 	var next_idx: int = selected_idx - 1
 	
@@ -75,13 +74,14 @@ func move_left() -> void:
 		var diff: int = next_idx - i
 		tween.tween_property(c, "position:x", -(c.size.x/2.0) - ((c.size.x + button_offset.x) * diff), 0.3)
 	
-	selected_idx = next_idx
-	
 	# Select the next button
+	selected_idx = next_idx
 	focus_selected()
+	return true
 
-func move_right() -> void:
-	if selected_idx == get_child_count() - 1: return
+func move_right() -> bool:
+	if selected_idx == get_child_count() - 1: 
+		return false
 	
 	var next_idx: int = selected_idx + 1
 	
@@ -96,7 +96,7 @@ func move_right() -> void:
 		# with the top left corner
 		tween.tween_property(c, "position:x", -(c.size.x/2.0) + ((c.size.x + button_offset.x) * diff), 0.3)
 
-	selected_idx = next_idx 
-	
 	# Select the next button
+	selected_idx = next_idx 
 	focus_selected()
+	return true

@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://dh01oxe50pj27"]
+[gd_scene load_steps=19 format=3 uid="uid://dh01oxe50pj27"]
 
 [ext_resource type="Script" path="res://scenes/app/scripts/app.gd" id="1_ov0up"]
 [ext_resource type="PackedScene" uid="uid://dweckt5oraox7" path="res://scenes/game_button/game_button.tscn" id="2_t5myg"]
@@ -21,6 +21,84 @@ shader = ExtResource("3_n8sr3")
 shader_parameter/lod = 4.731
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_wttou"]
+
+[sub_resource type="Animation" id="Animation_7ib0s"]
+resource_name = "default"
+length = 20.0
+loop_mode = 1
+step = 5.0
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 5, 10, 15, 20),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 0,
+"values": [Color(1, 1, 1, 1), Color(0.466181, 0.466181, 0.466181, 1), Color(1, 1, 1, 1), Color(0, 0, 0, 1), Color(1, 1, 1, 1)]
+}
+
+[sub_resource type="Animation" id="Animation_3bf3j"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(1, 1, 1, 1)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_omhbt"]
+_data = {
+"RESET": SubResource("Animation_3bf3j"),
+"default": SubResource("Animation_7ib0s")
+}
+
+[sub_resource type="Animation" id="Animation_r4pf5"]
+resource_name = "default"
+length = 10.0
+loop_mode = 1
+step = 1.0
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("ScreensaverTitle:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 2, 4, 6, 8, 10),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [Vector2(0, 0), Vector2(518, -395), Vector2(503, 380), Vector2(-479, 373), Vector2(-481, -392), Vector2(0, 0)]
+}
+
+[sub_resource type="Animation" id="Animation_ntcak"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("ScreensaverTitle:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(0, 0)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_avlm0"]
+_data = {
+"RESET": SubResource("Animation_ntcak"),
+"default": SubResource("Animation_r4pf5")
+}
 
 [node name="App" type="Control"]
 process_mode = 3
@@ -151,6 +229,13 @@ theme_override_font_sizes/font_size = 24
 text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
 autowrap_mode = 3
 
+[node name="Overlay" type="TextureRect" parent="."]
+visible = false
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+mouse_filter = 2
+
 [node name="Notices" type="VBoxContainer" parent="."]
 unique_name_in_owner = true
 layout_mode = 0
@@ -185,7 +270,69 @@ theme_override_styles/pressed = SubResource("StyleBoxEmpty_wttou")
 theme_override_styles/disabled = SubResource("StyleBoxEmpty_wttou")
 theme_override_styles/focus = SubResource("StyleBoxEmpty_wttou")
 
+[node name="Screensaver" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ScreensaverImage" type="TextureRect" parent="Screensaver"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("5_o0uvn")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="Screensaver/ScreensaverImage"]
+libraries = {
+"": SubResource("AnimationLibrary_omhbt")
+}
+autoplay = "default"
+speed_scale = 0.22
+
+[node name="ScreensaverTitle" type="Label" parent="Screensaver"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 80
+text = "GAME LAUNCHER"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="Screensaver/ScreensaverTitle"]
+root_node = NodePath("../..")
+libraries = {
+"": SubResource("AnimationLibrary_avlm0")
+}
+autoplay = "default"
+speed_scale = 0.11
+
+[node name="Timers" type="Node" parent="."]
+
+[node name="PIDTimer" type="Timer" parent="Timers"]
+
+[node name="ScreensaverTimer" type="Timer" parent="Timers"]
+wait_time = 300.0
+one_shot = true
+
+[node name="AutoscrollTimer" type="Timer" parent="Timers"]
+wait_time = 5.0
+
+[node name="AutoscrollStartTimer" type="Timer" parent="Timers"]
+wait_time = 45.0
+one_shot = true
+
 [connection signal="button_up" from="LeftButton" to="." method="_on_left_button_pressed"]
 [connection signal="mouse_entered" from="LeftButton" to="." method="_on_left_mouse_entered"]
 [connection signal="button_up" from="RightButton" to="." method="_on_right_button_pressed"]
 [connection signal="mouse_entered" from="RightButton" to="." method="_on_right_mouse_entered"]
+[connection signal="timeout" from="Timers/ScreensaverTimer" to="." method="_on_screensaver_timer"]
+[connection signal="timeout" from="Timers/AutoscrollTimer" to="." method="_on_autoscroll_timer"]
+[connection signal="timeout" from="Timers/AutoscrollStartTimer" to="." method="_on_autoscroll_start_timer"]
