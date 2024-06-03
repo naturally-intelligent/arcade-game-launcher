@@ -11,6 +11,7 @@ extends Control
 @export var autoscroll := false
 @export var show_version := true
 @export var screensaver := false
+@export var allow_mouse := false
 
 var pid_watching: int = -1
 var games: Dictionary
@@ -74,6 +75,13 @@ func _ready() -> void:
 	screensaver_setup()
 	autoscroll_setup()
 	reset_automation()
+
+	# MOUSE
+	if not allow_mouse:
+		# hide mouse, and lock to middle of screen
+		# can still be clicked but works well here because our focus game is in middle!
+		# to fully disable mouse clicks we could change all the buttons input modes (meh)
+		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 		
 	# Test
 	#launch_game("Dashpong")
@@ -432,6 +440,7 @@ func load_launcher_config() -> void:
 			verbose = launcher_config.get_value("LAUNCHER", "verbose", verbose)
 			verbose_console = launcher_config.get_value("LAUNCHER", "verbose_console", verbose_console)
 			check_for_updates = launcher_config.get_value("LAUNCHER", "check_for_updates", check_for_updates)
+			allow_mouse = launcher_config.get_value("LAUNCHER", "allow_mouse", allow_mouse)
 			show_version = launcher_config.get_value("LAUNCHER", "show_version", show_version)
 			screensaver = launcher_config.get_value("AUTOMATION", "screensaver", screensaver)
 			autoscroll = launcher_config.get_value("AUTOMATION", "autoscroll", autoscroll)
