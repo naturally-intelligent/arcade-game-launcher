@@ -15,6 +15,12 @@ var background: String
 var platform: String
 var arguments: PackedStringArray
 
+var animated_capsule: String
+var animated_capsule_hframes: int
+var animated_capsule_vframes: int
+var animated_capsule_frame_count: int
+var animated_capsule_frame_rate: int
+
 # CONFIG
 var config: ConfigFile
 
@@ -49,6 +55,13 @@ func parse_config():
 	description = config.get_value("GAME", "description", description)
 	capsule = config.get_value("GAME", "capsule", capsule)
 	background = config.get_value("GAME", "background", background)
+
+	animated_capsule = config.get_value("ANIMATED CAPSULE", "sprite_sheet", animated_capsule)
+	animated_capsule_hframes = config.get_value("ANIMATED CAPSULE", "horizontal_frames", 1)
+	animated_capsule_vframes = config.get_value("ANIMATED CAPSULE", "vertical_frames", 1)
+	animated_capsule_frame_count = config.get_value("ANIMATED CAPSULE", "frame_count", 1)
+	animated_capsule_frame_rate = config.get_value("ANIMATED CAPSULE", "frame_rate", 12)
+
 	category = config.get_value("GAME", "category", [])
 	order = config.get_value("SETTINGS", "order", 0)
 	visible = config.get_value("SETTINGS", "visible", true)
@@ -56,6 +69,7 @@ func parse_config():
 	pinned = config.get_value("SETTINGS", "pinned", true)
 	for key in config.get_section_keys("ATTRIBUTES"):
 		attributes[key] = config.get_value("ATTRIBUTES", key)
+
 	var arguments_string = config.get_value("GAME", "arguments", "")
 	arguments = arguments_string.split(" ")
 	
