@@ -210,7 +210,8 @@ func add_game_from_directory(subdir_path: String, game_dir: String) -> void:
 		file = subdir.get_next() # while
 	# check config for overrides (must be done last)
 	game.parse_config()
-	games[game_dir] = game
+	if game.available:
+		games[game_dir] = game
 	
 func print_games_to_console() -> void:
 	print("\nGAMES:\n")
