@@ -3,7 +3,7 @@ extends Object
 
 static func load_image_texture(path: String) -> ImageTexture:
 	var loaded_image: Image = Image.new()
-	if loaded_image.load(path) != OK:
+	if !FileAccess.file_exists(path) || loaded_image.load(path) != OK:
 		push_warning("Failed to load image texture at: ", path)
 		return null
 	else:

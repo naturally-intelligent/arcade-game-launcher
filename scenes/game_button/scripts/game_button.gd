@@ -32,7 +32,7 @@ func load_capsule_texture() -> Texture:
 
 func _load_animated_capsule_texture(path: String) -> AnimatedAtlasTexture:
 	var animated_capsule = AnimatedAtlasTexture.new()
-	if animated_capsule.load(path) != OK:
+	if !FileAccess.file_exists(path) || animated_capsule.load(path) != OK:
 		return null
 	else:
 		var hframes = properties.animated_capsule_hframes
@@ -44,15 +44,6 @@ func _load_animated_capsule_texture(path: String) -> AnimatedAtlasTexture:
 		animated_capsule.start_animation_tween(self, frame_count, frame_rate)
 		return animated_capsule
 
-func load_image_texture(path: String) -> ImageTexture:
-	var capsule_im: Image = Image.new()
-	if capsule_im.load(path) != OK:
-		print("BAD STUFF, CANT LOAD CAPSULE AT: ", properties.file("capsule"))
-		return null
-	else:
-		var tex: ImageTexture = ImageTexture.new()
-		tex.set_image(capsule_im)
-		return tex
 
 func toggle_focus_visuals(state: bool) -> void:
 	if tween and tween.is_running():

@@ -270,13 +270,16 @@ func on_game_btn_focused(who: Button) -> void:
 		#bg.texture = default_bg
 		bg.blend_textures_animated(bg.get_shader_texture(1), default_bg, 0.4)
 		return
-	var texture: ImageTexture = who.load_image_texture(who.properties.file("background"))
-	if not texture: 
-		bg.blend_textures_animated(bg.get_shader_texture(1), default_bg, 0.4)
-		#bg.texture = default_bg
-		return
-	bg.blend_textures_animated(bg.get_shader_texture(1), texture, 0.4)
-	#bg.texture = texture
+	
+	var background_path = who.properties.file("background")
+	if FileAccess.file_exists(background_path):
+		var texture: ImageTexture = FileUtilities.load_image_texture(background_path)
+		if texture: 
+			#bg.texture = texture
+			bg.blend_textures_animated(bg.get_shader_texture(1), texture, 0.4)
+			return
+	#bg.texture = default_bg
+	bg.blend_textures_animated(bg.get_shader_texture(1), default_bg, 0.4)
 
 func on_game_btn_pressed(btn: Button) -> void:
 	# If game already launched, don't launch another one
