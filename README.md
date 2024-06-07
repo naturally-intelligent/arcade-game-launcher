@@ -101,6 +101,13 @@ category = ["Tools", "Tests"]
 notice = "Coming Soon"
 arguments = "--fullscreen --keyboard"
 
+[ANIMATED CAPSULE]
+sprite_sheet = "Game Animated Capsule Sprite Sheet.png"
+horizontal_frames = 4
+vertical_frames = 2
+frame_count = 8
+frame_rate = 12
+
 [SETTINGS]
 order = 4
 visible = true
