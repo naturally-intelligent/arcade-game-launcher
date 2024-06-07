@@ -13,6 +13,7 @@ var description: String
 var capsule: String
 var background: String
 var platform: String
+var arguments: PackedStringArray
 
 # CONFIG
 var config: ConfigFile
@@ -55,6 +56,8 @@ func parse_config():
 	pinned = config.get_value("SETTINGS", "pinned", true)
 	for key in config.get_section_keys("ATTRIBUTES"):
 		attributes[key] = config.get_value("ATTRIBUTES", key)
+	var arguments_string = config.get_value("GAME", "arguments", "")
+	arguments = arguments_string.split(" ")
 	
 func debug_line() -> String:
 	return "\t\t" + title + " -> \t\t\t" + executable

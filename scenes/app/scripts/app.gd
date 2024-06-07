@@ -231,7 +231,7 @@ func launch_game(game_name: String) -> bool:
 	var executable_path: String = game.file("executable")
 	if FileAccess.file_exists(executable_path):
 		games_container.can_move = false
-		pid_watching = OS.create_process(executable_path, [])
+		pid_watching = OS.create_process(executable_path, game.arguments)
 		pid_timer.start()
 		return true
 	else:
