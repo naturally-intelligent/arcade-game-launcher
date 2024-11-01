@@ -3,6 +3,7 @@ extends Control
 
 @export var game_button: PackedScene
 @export var default_bg: Texture
+@export var loading_screen: Control
 @export_enum("windows", "linux") var platform := "windows"
 @export var enforce_platform := false
 @export var verbose := true
@@ -232,6 +233,7 @@ func launch_game(game_name: String) -> bool:
 		games_container.can_move = false
 		pid_watching = OS.create_process(executable_path, game.arguments)
 		pid_timer.start()
+		loading_screen.show()
 		return true
 	else:
 		print("Missing game executable: ", executable_path)
@@ -240,6 +242,7 @@ func launch_game(game_name: String) -> bool:
 
 func stop_game(pid: int) -> void:
 	add_notice("Returned control to launcher.", verbose)
+	loading_screen.hide()
 	if pid_watching < 0: return
 	games_container.can_move = true
 	OS.kill(pid)
@@ -252,6 +255,7 @@ func on_pid_timer_timeout() -> void:
 			console_spam += 1
 	else:
 		add_notice("Game stopped.", verbose)
+		loading_screen.hide()
 		pid_timer.stop()
 		pid_watching = -1
 		games_container.can_move = true

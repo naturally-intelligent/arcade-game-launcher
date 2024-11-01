@@ -1,4 +1,4 @@
-[gd_scene load_steps=19 format=3 uid="uid://dh01oxe50pj27"]
+[gd_scene load_steps=20 format=3 uid="uid://dh01oxe50pj27"]
 
 [ext_resource type="Script" path="res://scenes/app/scripts/app.gd" id="1_ov0up"]
 [ext_resource type="PackedScene" uid="uid://dweckt5oraox7" path="res://scenes/game_button/game_button.tscn" id="2_t5myg"]
@@ -22,6 +22,21 @@ shader_parameter/lod = 4.731
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_wttou"]
 
+[sub_resource type="Animation" id="Animation_3bf3j"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(1, 1, 1, 1)]
+}
+
 [sub_resource type="Animation" id="Animation_7ib0s"]
 resource_name = "default"
 length = 20.0
@@ -40,25 +55,25 @@ tracks/0/keys = {
 "values": [Color(1, 1, 1, 1), Color(0.466181, 0.466181, 0.466181, 1), Color(1, 1, 1, 1), Color(0, 0, 0, 1), Color(1, 1, 1, 1)]
 }
 
-[sub_resource type="Animation" id="Animation_3bf3j"]
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_omhbt"]
+_data = {
+"RESET": SubResource("Animation_3bf3j"),
+"default": SubResource("Animation_7ib0s")
+}
+
+[sub_resource type="Animation" id="Animation_ntcak"]
 length = 0.001
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath(".:modulate")
+tracks/0/path = NodePath("ScreensaverTitle:position")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 0,
-"values": [Color(1, 1, 1, 1)]
-}
-
-[sub_resource type="AnimationLibrary" id="AnimationLibrary_omhbt"]
-_data = {
-"RESET": SubResource("Animation_3bf3j"),
-"default": SubResource("Animation_7ib0s")
+"values": [Vector2(0, 0)]
 }
 
 [sub_resource type="Animation" id="Animation_r4pf5"]
@@ -79,28 +94,16 @@ tracks/0/keys = {
 "values": [Vector2(0, 0), Vector2(518, -395), Vector2(503, 380), Vector2(-479, 373), Vector2(-481, -392), Vector2(0, 0)]
 }
 
-[sub_resource type="Animation" id="Animation_ntcak"]
-length = 0.001
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("ScreensaverTitle:position")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Vector2(0, 0)]
-}
-
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_avlm0"]
 _data = {
 "RESET": SubResource("Animation_ntcak"),
 "default": SubResource("Animation_r4pf5")
 }
 
-[node name="App" type="Control"]
+[sub_resource type="LabelSettings" id="LabelSettings_73siu"]
+font_size = 128
+
+[node name="App" type="Control" node_paths=PackedStringArray("loading_screen")]
 process_mode = 3
 layout_mode = 3
 anchors_preset = 15
@@ -111,6 +114,7 @@ grow_vertical = 2
 script = ExtResource("1_ov0up")
 game_button = ExtResource("2_t5myg")
 default_bg = ExtResource("3_0g1gi")
+loading_screen = NodePath("LoadingScreen")
 
 [node name="BG" type="TextureRect" parent="."]
 self_modulate = Color(0.486275, 0.486275, 0.486275, 1)
@@ -313,6 +317,32 @@ libraries = {
 }
 autoplay = "default"
 speed_scale = 0.11
+
+[node name="LoadingScreen" type="ColorRect" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 1)
+
+[node name="Label" type="Label" parent="LoadingScreen"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -11.5
+offset_right = 20.0
+offset_bottom = 11.5
+grow_horizontal = 2
+grow_vertical = 2
+text = "Loading"
+label_settings = SubResource("LabelSettings_73siu")
 
 [node name="Timers" type="Node" parent="."]
 
