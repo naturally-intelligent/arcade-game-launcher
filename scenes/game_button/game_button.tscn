@@ -15,11 +15,11 @@ offset_right = 336.0
 offset_bottom = 507.0
 pivot_offset = Vector2(168, 253.5)
 mouse_default_cursor_shape = 2
-theme_override_styles/normal = SubResource("StyleBoxEmpty_dcdjw")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_dcdjw")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_pfxkt")
 theme_override_styles/hover = SubResource("StyleBoxEmpty_dcdjw")
 theme_override_styles/pressed = SubResource("StyleBoxEmpty_dcdjw")
-theme_override_styles/disabled = SubResource("StyleBoxFlat_pfxkt")
-theme_override_styles/focus = SubResource("StyleBoxEmpty_dcdjw")
+theme_override_styles/normal = SubResource("StyleBoxEmpty_dcdjw")
 script = ExtResource("1_ggd64")
 
 [node name="Capsule" type="TextureRect" parent="."]
