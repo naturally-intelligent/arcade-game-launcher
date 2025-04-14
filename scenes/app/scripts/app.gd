@@ -3,6 +3,7 @@ extends Control
 
 @export var game_button: PackedScene
 @export var default_bg: Texture
+@export var loading_screen: Control
 @export_enum("windows", "linux") var platform := "windows"
 @export var enforce_platform := false
 @export var verbose := true
@@ -233,6 +234,7 @@ func launch_game(game_name: String) -> bool:
 		games_container.can_move = false
 		pid_watching = OS.create_process(executable_path, game.arguments)
 		pid_timer.start()
+		loading_screen.show()
 		return true
 	else:
 		print("Missing game executable: ", executable_path)
@@ -241,6 +243,7 @@ func launch_game(game_name: String) -> bool:
 
 func stop_game(pid: int) -> void:
 	add_notice("Returned control to launcher.", verbose)
+	loading_screen.hide()
 	if pid_watching < 0: return
 	games_container.can_move = true
 	OS.kill(pid)
@@ -253,6 +256,7 @@ func on_pid_timer_timeout() -> void:
 			console_spam += 1
 	else:
 		add_notice("Game stopped.", verbose)
+		loading_screen.hide()
 		pid_timer.stop()
 		pid_watching = -1
 		games_container.can_move = true
@@ -271,13 +275,16 @@ func on_game_btn_focused(who: Button) -> void:
 		#bg.texture = default_bg
 		bg.blend_textures_animated(bg.get_shader_texture(1), default_bg, 0.4)
 		return
-	var texture: ImageTexture = who.load_image_texture(who.properties.file("background"))
-	if not texture: 
-		bg.blend_textures_animated(bg.get_shader_texture(1), default_bg, 0.4)
-		#bg.texture = default_bg
-		return
-	bg.blend_textures_animated(bg.get_shader_texture(1), texture, 0.4)
-	#bg.texture = texture
+	
+	var background_path = who.properties.file("background")
+	if FileAccess.file_exists(background_path):
+		var texture: ImageTexture = FileUtilities.load_image_texture(background_path)
+		if texture: 
+			#bg.texture = texture
+			bg.blend_textures_animated(bg.get_shader_texture(1), texture, 0.4)
+			return
+	#bg.texture = default_bg
+	bg.blend_textures_animated(bg.get_shader_texture(1), default_bg, 0.4)
 
 func on_game_btn_pressed(btn: Button) -> void:
 	# If game already launched, don't launch another one
