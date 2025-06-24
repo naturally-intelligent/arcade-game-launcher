@@ -1,4 +1,4 @@
-[gd_scene load_steps=19 format=3 uid="uid://dh01oxe50pj27"]
+[gd_scene load_steps=20 format=3 uid="uid://dh01oxe50pj27"]
 
 [ext_resource type="Script" path="res://scenes/app/scripts/app.gd" id="1_ov0up"]
 [ext_resource type="PackedScene" uid="uid://dweckt5oraox7" path="res://scenes/game_button/game_button.tscn" id="2_t5myg"]
@@ -9,6 +9,7 @@
 [ext_resource type="Script" path="res://scenes/carousel/scripts/carousel.gd" id="4_yrr54"]
 [ext_resource type="Texture2D" uid="uid://dph8j6sb0fjbv" path="res://scenes/game_button/visuals/bg_test.png" id="5_o0uvn"]
 [ext_resource type="Script" path="res://scenes/app/scripts/bg_blend.gd" id="6_2ddv3"]
+[ext_resource type="PackedScene" uid="uid://byc63tttfiubh" path="res://scenes/attributes/attribute.tscn" id="10_ctef4"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_psg6v"]
 shader = ExtResource("4_7um57")
@@ -21,6 +22,21 @@ shader = ExtResource("3_n8sr3")
 shader_parameter/lod = 4.731
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_wttou"]
+
+[sub_resource type="Animation" id="Animation_3bf3j"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(1, 1, 1, 1)]
+}
 
 [sub_resource type="Animation" id="Animation_7ib0s"]
 resource_name = "default"
@@ -40,25 +56,25 @@ tracks/0/keys = {
 "values": [Color(1, 1, 1, 1), Color(0.466181, 0.466181, 0.466181, 1), Color(1, 1, 1, 1), Color(0, 0, 0, 1), Color(1, 1, 1, 1)]
 }
 
-[sub_resource type="Animation" id="Animation_3bf3j"]
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_omhbt"]
+_data = {
+"RESET": SubResource("Animation_3bf3j"),
+"default": SubResource("Animation_7ib0s")
+}
+
+[sub_resource type="Animation" id="Animation_ntcak"]
 length = 0.001
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath(".:modulate")
+tracks/0/path = NodePath("ScreensaverTitle:position")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 0,
-"values": [Color(1, 1, 1, 1)]
-}
-
-[sub_resource type="AnimationLibrary" id="AnimationLibrary_omhbt"]
-_data = {
-"RESET": SubResource("Animation_3bf3j"),
-"default": SubResource("Animation_7ib0s")
+"values": [Vector2(0, 0)]
 }
 
 [sub_resource type="Animation" id="Animation_r4pf5"]
@@ -77,21 +93,6 @@ tracks/0/keys = {
 "transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1),
 "update": 0,
 "values": [Vector2(0, 0), Vector2(518, -395), Vector2(503, 380), Vector2(-479, 373), Vector2(-481, -392), Vector2(0, 0)]
-}
-
-[sub_resource type="Animation" id="Animation_ntcak"]
-length = 0.001
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("ScreensaverTitle:position")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Vector2(0, 0)]
 }
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_avlm0"]
@@ -124,6 +125,7 @@ grow_vertical = 2
 mouse_filter = 2
 texture = ExtResource("3_0g1gi")
 script = ExtResource("6_2ddv3")
+metadata/_edit_lock_ = true
 
 [node name="GradientBG2" type="TextureRect" parent="."]
 self_modulate = Color(0.486275, 0.486275, 0.486275, 1)
@@ -136,6 +138,7 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 texture = ExtResource("3_0g1gi")
+metadata/_edit_lock_ = true
 
 [node name="Darken" type="ColorRect" parent="."]
 self_modulate = Color(1, 1, 1, 0.4)
@@ -147,6 +150,7 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 color = Color(0.121569, 0.121569, 0.121569, 1)
+metadata/_edit_lock_ = true
 
 [node name="Games" type="Control" parent="."]
 layout_mode = 1
@@ -161,6 +165,7 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("4_yrr54")
 button_offset = Vector2(75, 0)
+metadata/_edit_lock_ = true
 
 [node name="NoGameFound" type="Label" parent="."]
 visible = false
@@ -188,10 +193,10 @@ anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -75.0
-offset_top = -52.0
-offset_right = -24.0
-offset_bottom = -21.0
+offset_left = -1900.0
+offset_top = -50.0
+offset_right = -1849.0
+offset_bottom = -19.0
 grow_horizontal = 0
 grow_vertical = 0
 theme_override_font_sizes/font_size = 22
@@ -200,19 +205,72 @@ underline = 1
 uri = "https://api.github.com/repos/MrEliptik/GameLauncher/releases/latest"
 script = ExtResource("4_df76v")
 
+[node name="Attributes" type="VBoxContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 1619.0
+offset_top = 314.0
+offset_right = 1907.0
+offset_bottom = 1064.0
+theme_override_constants/separation = 0
+alignment = 2
+
+[node name="singleplayer" parent="Attributes" instance=ExtResource("10_ctef4")]
+layout_mode = 2
+text = "Single Player"
+icon = 73
+
+[node name="multiplayer" parent="Attributes" instance=ExtResource("10_ctef4")]
+layout_mode = 2
+text = "Two Players"
+icon = 98
+
+[node name="pvp" parent="Attributes" instance=ExtResource("10_ctef4")]
+layout_mode = 2
+text = "Competitive"
+icon = 25
+
+[node name="coop" parent="Attributes" instance=ExtResource("10_ctef4")]
+layout_mode = 2
+text = "Cooperative"
+icon = 15
+
+[node name="trackball" parent="Attributes" instance=ExtResource("10_ctef4")]
+layout_mode = 2
+text = "Trackball"
+icon = 43
+
+[node name="leaderboards" parent="Attributes" instance=ExtResource("10_ctef4")]
+layout_mode = 2
+text = "Leaderboards"
+icon = 3
+
+[node name="gamejam" parent="Attributes" instance=ExtResource("10_ctef4")]
+layout_mode = 2
+text = "Game Jam Entry"
+icon = 16
+
+[node name="arcadejam" parent="Attributes" instance=ExtResource("10_ctef4")]
+layout_mode = 2
+text = "Arcade Jam Entry"
+icon = 81
+
+[node name="construction" parent="Attributes" instance=ExtResource("10_ctef4")]
+layout_mode = 2
+text = "Unfinished"
+icon = 102
+
+[node name="crashy" parent="Attributes" instance=ExtResource("10_ctef4")]
+layout_mode = 2
+text = "Crashy"
+icon = 76
+
 [node name="Description" type="VBoxContainer" parent="."]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -360.0
-offset_top = 141.0
-offset_right = 360.0
-offset_bottom = 507.0
-grow_horizontal = 2
-grow_vertical = 2
+layout_mode = 0
+offset_left = 614.0
+offset_top = 701.0
+offset_right = 1334.0
+offset_bottom = 1693.0
 theme_override_constants/separation = 10
 
 [node name="Title" type="Label" parent="Description"]
@@ -236,6 +294,41 @@ offset_right = 40.0
 offset_bottom = 40.0
 mouse_filter = 2
 
+[node name="Loading" type="ColorRect" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 1)
+
+[node name="Labels" type="VBoxContainer" parent="Loading"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+alignment = 1
+
+[node name="Label" type="Label" parent="Loading/Labels"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 60
+text = "Loading"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="GameName" type="Label" parent="Loading/Labels"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 40
+text = "Game Name"
+horizontal_alignment = 1
+vertical_alignment = 1
+
 [node name="Notices" type="VBoxContainer" parent="."]
 unique_name_in_owner = true
 layout_mode = 0
@@ -244,6 +337,7 @@ offset_top = 9.0
 offset_right = 1474.0
 offset_bottom = 242.0
 theme_override_constants/separation = 3
+metadata/_edit_lock_ = true
 
 [node name="LeftButton" type="Button" parent="."]
 layout_mode = 0
@@ -256,6 +350,7 @@ theme_override_styles/hover = SubResource("StyleBoxEmpty_wttou")
 theme_override_styles/pressed = SubResource("StyleBoxEmpty_wttou")
 theme_override_styles/disabled = SubResource("StyleBoxEmpty_wttou")
 theme_override_styles/focus = SubResource("StyleBoxEmpty_wttou")
+metadata/_edit_lock_ = true
 
 [node name="RightButton" type="Button" parent="."]
 layout_mode = 0
@@ -269,14 +364,17 @@ theme_override_styles/hover = SubResource("StyleBoxEmpty_wttou")
 theme_override_styles/pressed = SubResource("StyleBoxEmpty_wttou")
 theme_override_styles/disabled = SubResource("StyleBoxEmpty_wttou")
 theme_override_styles/focus = SubResource("StyleBoxEmpty_wttou")
+metadata/_edit_lock_ = true
 
 [node name="Screensaver" type="Control" parent="."]
+visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+metadata/_edit_lock_ = true
 
 [node name="ScreensaverImage" type="TextureRect" parent="Screensaver"]
 layout_mode = 1
@@ -305,6 +403,7 @@ theme_override_font_sizes/font_size = 80
 text = "GAME LAUNCHER"
 horizontal_alignment = 1
 vertical_alignment = 1
+metadata/_edit_lock_ = true
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="Screensaver/ScreensaverTitle"]
 root_node = NodePath("../..")
@@ -329,6 +428,10 @@ wait_time = 5.0
 wait_time = 45.0
 one_shot = true
 
+[node name="AllowGameLaunchTimer" type="Timer" parent="Timers"]
+one_shot = true
+autostart = true
+
 [connection signal="button_up" from="LeftButton" to="." method="_on_left_button_pressed"]
 [connection signal="mouse_entered" from="LeftButton" to="." method="_on_left_mouse_entered"]
 [connection signal="button_up" from="RightButton" to="." method="_on_right_button_pressed"]
@@ -336,3 +439,4 @@ one_shot = true
 [connection signal="timeout" from="Timers/ScreensaverTimer" to="." method="_on_screensaver_timer"]
 [connection signal="timeout" from="Timers/AutoscrollTimer" to="." method="_on_autoscroll_timer"]
 [connection signal="timeout" from="Timers/AutoscrollStartTimer" to="." method="_on_autoscroll_start_timer"]
+[connection signal="timeout" from="Timers/AllowGameLaunchTimer" to="." method="_on_allow_game_launch_timer"]

@@ -15,6 +15,7 @@ extends Control
 
 var pid_watching: int = -1
 var games: Dictionary
+var allow_game_launch := false
 
 const console_spam_max = 3
 var console_spam := 0
@@ -30,7 +31,7 @@ var screensaver_tween: Tween
 @onready var description: Label = $Description/Description
 @onready var version_btn = $VersionBtn
 
-@onready var check_for_updates := true
+@onready var check_for_updates := false
 @onready var update_checker := UpdateChecker.new()
 
 var launcher_config: ConfigFile
@@ -57,6 +58,8 @@ func _ready() -> void:
 	if autoscan:
 		scan_for_games(base_dir.path_join("games"))
 	setup_overlay()
+	start_allow_launch_timer()
+	hide_attributes()
 	
 	# PRINT
 	print_games_to_console()
@@ -67,7 +70,7 @@ func _ready() -> void:
 	
 	# UI
 	var buttons: Array = games_container.create_game_buttons(game_button, games)
-	for b in buttons:
+	for b: GameButton in buttons:
 		b.focused.connect(on_game_btn_focused)
 		b.pressed.connect(on_game_btn_pressed.bind(b))
 	
@@ -75,6 +78,7 @@ func _ready() -> void:
 	screensaver_setup()
 	autoscroll_setup()
 	reset_automation()
+	hide_load_screen()
 
 	# MOUSE
 	if not allow_mouse:
@@ -109,7 +113,7 @@ func _input(event):
 		stop_screensaver()
 	if autoscroll:
 		stop_autoscrolling()
-	
+
 func configure_pid_timer() -> void:
 	# Configure the timer
 	pid_timer.one_shot = false
@@ -196,7 +200,7 @@ func add_game_from_directory(subdir_path: String, game_dir: String) -> void:
 				"txt":
 					if basename == "description":
 						var text_file = FileAccess.open(check_file, FileAccess.READ)
-						var content = text_file.get_as_text()
+						var content = text_file.get_as_text(true)
 						game.description = content
 				"ini", "cfg":
 					if basename == "config":
@@ -233,6 +237,7 @@ func launch_game(game_name: String) -> bool:
 		games_container.can_move = false
 		pid_watching = OS.create_process(executable_path, game.arguments)
 		pid_timer.start()
+		show_load_screen(game.title)
 		return true
 	else:
 		print("Missing game executable: ", executable_path)
@@ -240,11 +245,13 @@ func launch_game(game_name: String) -> bool:
 		return false
 
 func stop_game(pid: int) -> void:
+	hide_load_screen()
 	add_notice("Returned control to launcher.", verbose)
 	if pid_watching < 0: return
 	games_container.can_move = true
 	OS.kill(pid)
 	reset_automation()
+	start_allow_launch_timer()
 
 func on_pid_timer_timeout() -> void:
 	if OS.is_process_running(pid_watching):
@@ -258,14 +265,19 @@ func on_pid_timer_timeout() -> void:
 		games_container.can_move = true
 		DisplayServer.window_move_to_foreground()
 		reset_automation()
+		hide_load_screen()
 
-func on_game_btn_focused(who: Button) -> void:
+func on_game_btn_focused(who: GameButton) -> void:
+	hide_load_screen()
+
 	if not who.properties.description:
-		description.text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+		description.text = "No Description."
 	else:
 		description.text = who.properties.description
 	
 	title.text = who.properties.title
+	
+	show_attributes(who.properties)
 
 	if not who.properties.file("background"): 
 		#bg.texture = default_bg
@@ -279,10 +291,15 @@ func on_game_btn_focused(who: Button) -> void:
 	bg.blend_textures_animated(bg.get_shader_texture(1), texture, 0.4)
 	#bg.texture = texture
 
-func on_game_btn_pressed(btn: Button) -> void:
+func on_game_btn_pressed(btn: GameButton) -> void:
+	hide_load_screen()
 	# If game already launched, don't launch another one
 	if pid_watching > 0:
 		stop_game(pid_watching)
+		return
+	if not allow_game_launch:
+		add_notice("Just wait a second...")
+		allow_game_launch = true
 		return
 	launch_game(btn.game_name)
 
@@ -299,6 +316,15 @@ func is_interactive():
 	if pid_watching > 0:
 		return false
 	return games_container.can_move
+
+func start_allow_launch_timer():
+	# adds a 1 second delay before allowing launch...
+	#  helpful for screensaver, and after quitting a game, to prevent launch
+	allow_game_launch = false
+	$Timers/AllowGameLaunchTimer.start()	
+
+func _on_allow_game_launch_timer():
+	allow_game_launch = true
 
 # NOTICES
 
@@ -415,15 +441,43 @@ func show_screensaver():
 	screensaver_tween.tween_property($Screensaver, "modulate:a", 1.0, 3.0)
 	$Screensaver.visible = true
 	
-func hide_screensaver():
+func stop_screensaver():
 	if screensaver_tween:
 		screensaver_tween.kill()
+		start_allow_launch_timer()
 	$Screensaver.visible = false
-
-func stop_screensaver():
-	hide_screensaver()
 	$Timers/ScreensaverTimer.start()
+	hide_load_screen()
 
+# LOAD SCREEN
+
+func hide_load_screen():
+	%Loading.visible = false
+
+func show_load_screen(game_name: String):
+	%Loading.visible = true
+	if game_name:
+		%Loading/Labels/GameName.visible = true
+		%Loading/Labels/GameName.text = game_name
+	else:
+		%Loading/Labels/GameName.visible = false
+
+# ATTRIBUTES
+
+func hide_attributes():
+	for attribute: Attribute in %Attributes.get_children():
+		attribute.visible = false
+
+func show_attributes(game: Game):
+	print('ATTRIBUTES')
+	print(game.attributes)
+	for attribute: Attribute in %Attributes.get_children():
+		var attribute_name: String = attribute.name
+		attribute.visible = false
+		if attribute_name in game.attributes:
+			if game.attributes[attribute_name]:
+				attribute.visible = true
+	
 # LAUNCHER CONFIG
 
 func load_launcher_config() -> void:

@@ -1,0 +1,27 @@
+[gd_scene load_steps=3 format=3 uid="uid://byc63tttfiubh"]
+
+[ext_resource type="Script" path="res://scenes/attributes/attribute.gd" id="1_20exr"]
+[ext_resource type="Texture2D" uid="uid://dp0fpm5ut8nkd" path="res://scenes/icons/sheet_white2x.png" id="1_npo1l"]
+
+[node name="Attribute" type="HBoxContainer"]
+offset_right = 40.0
+offset_bottom = 40.0
+theme_override_constants/separation = 12
+script = ExtResource("1_20exr")
+
+[node name="Icon" type="Control" parent="."]
+custom_minimum_size = Vector2(75, 75)
+layout_mode = 2
+
+[node name="Sprite" type="Sprite2D" parent="Icon"]
+scale = Vector2(0.75, 0.75)
+texture = ExtResource("1_npo1l")
+centered = false
+hframes = 6
+vframes = 20
+frame = 73
+
+[node name="Label" type="Label" parent="."]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Single Player"
