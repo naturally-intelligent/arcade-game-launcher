@@ -445,6 +445,7 @@ func stop_screensaver():
 	if screensaver_tween:
 		screensaver_tween.kill()
 		start_allow_launch_timer()
+		screensaver_tween = null
 	$Screensaver.visible = false
 	$Timers/ScreensaverTimer.start()
 	hide_load_screen()
