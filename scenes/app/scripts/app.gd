@@ -15,6 +15,7 @@ extends Control
 
 var pid_watching: int = -1
 var games: Dictionary
+var current_game: Game
 var allow_game_launch := false
 
 const console_spam_max = 3
@@ -36,6 +37,10 @@ var screensaver_tween: Tween
 
 var launcher_config: ConfigFile
 var launcher_config_file := "launcher.ini"
+
+var log_file := "arcadelog.txt"
+var time_start: float
+var time_end: float
 
 const notice_tscn = preload("res://scenes/notice/notice.tscn")
 
@@ -80,6 +85,8 @@ func _ready() -> void:
 	reset_automation()
 	hide_load_screen()
 
+	print("Log File: " + log_file + " in: " + OS.get_user_data_dir())
+
 	# MOUSE
 	if not allow_mouse:
 		# hide mouse, and lock to middle of screen
@@ -93,6 +100,7 @@ func _ready() -> void:
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
 		print("About to quit, killing process")
+		_write_log("QUIT")
 		stop_game(pid_watching)
 		
 		# Maybe use a softer method, by sending a WM_CLOSE message first
@@ -229,6 +237,7 @@ func launch_game(game_name: String) -> bool:
 	var game: Game = games[game_name]
 	console_spam = 0
 	add_notice("Launching game: " + game.title, verbose)
+	log_game_start(game)
 	if not game.executable: 
 		add_notice("No executable set for game: " + game.title)
 		return false
@@ -238,6 +247,7 @@ func launch_game(game_name: String) -> bool:
 		pid_watching = OS.create_process(executable_path, game.arguments)
 		pid_timer.start()
 		show_load_screen(game.title)
+		current_game = game
 		return true
 	else:
 		print("Missing game executable: ", executable_path)
@@ -246,6 +256,9 @@ func launch_game(game_name: String) -> bool:
 
 func stop_game(pid: int) -> void:
 	hide_load_screen()
+	if current_game:
+		log_game_end(current_game)
+	current_game = null
 	add_notice("Returned control to launcher.", verbose)
 	if pid_watching < 0: return
 	games_container.can_move = true
@@ -266,6 +279,8 @@ func on_pid_timer_timeout() -> void:
 		DisplayServer.window_move_to_foreground()
 		reset_automation()
 		hide_load_screen()
+		log_game_end(current_game)
+		current_game = null
 
 func on_game_btn_focused(who: GameButton) -> void:
 	hide_load_screen()
@@ -470,15 +485,46 @@ func hide_attributes():
 		attribute.visible = false
 
 func show_attributes(game: Game):
-	print('ATTRIBUTES')
-	print(game.attributes)
+	#print('ATTRIBUTES')
+	#print(game.attributes)
 	for attribute: Attribute in %Attributes.get_children():
 		var attribute_name: String = attribute.name
 		attribute.visible = false
 		if attribute_name in game.attributes:
 			if game.attributes[attribute_name]:
 				attribute.visible = true
-	
+
+# LOG FILE
+
+func log_game_start(game: Game):
+	time_start = Time.get_unix_time_from_system() 
+	var time_start_dict := Time.get_datetime_dict_from_unix_time(time_start) 
+	var message: String = "Started: " + game.title + "\n"
+	#message += "- "+game.executable + "\n" 
+	message += "- " + util.time_date_dict_to_string(time_start_dict)
+	_write_log(message)
+
+func log_game_end(game: Game):
+	time_end = Time.get_unix_time_from_system() 
+	var time_end_dict := Time.get_datetime_dict_from_unix_time(time_end) 
+	var time_elapsed := time_end - time_start
+	#var time_elapsed_dict := Time.get_datetime_dict_from_unix_time(time_elapsed)
+	var message: String = "Ended: " + game.title  + "\n"
+	message += "- " + util.time_date_dict_to_string(time_end_dict) + "\n"
+	message += "- Elapsed: " + util.time_to_string(time_elapsed)
+	_write_log(message)
+
+func _write_log(message: String):
+	print("LOG: " + message)
+	var file_dir := "user://"+log_file
+	var file := FileAccess.open(file_dir, FileAccess.READ_WRITE)
+	if file and file.is_open():
+		file.seek_end()
+		file.store_line(message)
+		file.close()
+	else:
+		print("Cant open log file: " + file_dir)
+
 # LAUNCHER CONFIG
 
 func load_launcher_config() -> void:
@@ -500,6 +546,7 @@ func load_launcher_config() -> void:
 			show_version = launcher_config.get_value("LAUNCHER", "show_version", show_version)
 			screensaver = launcher_config.get_value("AUTOMATION", "screensaver", screensaver)
 			autoscroll = launcher_config.get_value("AUTOMATION", "autoscroll", autoscroll)
+			log_file = launcher_config.get_value("LOGGING", "log_file", log_file)
 			print("SUCCESS: loaded launcher config file\n")
 		else:
 			print("WARNING: bad launcher config file ", status)

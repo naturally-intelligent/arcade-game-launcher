@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="Arcade Launcher"
-config/version="1.0.1"
+config/version="1.0.2"
 config/tags=PackedStringArray("tool")
 run/main_scene="res://scenes/app/app.tscn"
 config/features=PackedStringArray("4.2", "GL Compatibility")
@@ -21,6 +21,7 @@ config/icon="res://icon.svg"
 [autoload]
 
 FocusChecker="*res://autoload/focus_checker.gd"
+util="*res://shared/utils/util.gd"
 
 [display]
 

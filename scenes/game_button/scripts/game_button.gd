@@ -24,7 +24,7 @@ func _ready() -> void:
 func load_image_texture(path: String) -> ImageTexture:
 	var capsule_im: Image = Image.new()
 	if capsule_im.load(path) != OK:
-		print("BAD STUFF, CANT LOAD CAPSULE AT: ", properties.file("capsule"))
+		#print("BAD STUFF, CANT LOAD CAPSULE AT: ", properties.file("capsule"))
 		return null
 	else:
 		var tex: ImageTexture = ImageTexture.new()
