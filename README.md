@@ -112,11 +112,20 @@ singleplayer = false
 multiplayer = true
 coop = true
 pvp = true
+
+[TAGS]
+list = ["Arcade_Jam_24", "Misc"]
+
+date_added = "15-01-2024"
 ```
 
 Config file keys for title, executable, capsule, and background will override any values detected in the directory scan. 
 
 Set 'visible = false' to quickly hide broken games without deleting them.
+
+**Tag Filtering**: Games can be tagged using the `[TAGS]` section. Tags are used to create filter buttons in the launcher interface, allowing users to quickly filter games by categories like "Arcade_Jam_24", "Arcade_Jam_25", or "Misc". The launcher will automatically generate filter buttons for all unique tags found across your games.
+
+**Recently Added Sort**: Use the `date_added` field in the `[GAME]` section to specify when a game was added (format: DD-MM-YYYY). The "Recently Added" filter button will sort all games by date with the most recent first, and games without dates appear at the end.
 
 All keys are optional. See source code to explain each key. Some keys may not yet be implemented, or shown as future possibilities.
 
@@ -131,6 +140,7 @@ New features of this fork include:
 - Popup Notices
 - Mouse Support
 - Overlay Image
+- Tag-based Game Filtering
 - Categories (TODO)
 
 Depending on MrEliptik's decisions, these features may or may not be moved to the main launcher repo. If you don't need the added complexity of these new features and just want to demo your games, you can be confident in using the original repo!

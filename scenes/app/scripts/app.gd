@@ -18,6 +18,10 @@ var games: Dictionary
 var current_game: Game
 var allow_game_launch := false
 
+# Navigation state
+var tag_filter_focused: bool = false
+var current_tag_index: int = 0
+
 const console_spam_max = 3
 var console_spam := 0
 
@@ -34,6 +38,8 @@ var screensaver_tween: Tween
 
 @onready var check_for_updates := false
 @onready var update_checker := UpdateChecker.new()
+
+@onready var tag_container: HBoxContainer
 
 var launcher_config: ConfigFile
 var launcher_config_file := "launcher.ini"
@@ -79,6 +85,9 @@ func _ready() -> void:
 		b.focused.connect(on_game_btn_focused)
 		b.pressed.connect(on_game_btn_pressed.bind(b))
 	
+	# Setup tag filtering
+	setup_tag_filters()
+	
 	# AUTOMATION (screensaver, autoscroll)
 	screensaver_setup()
 	autoscroll_setup()
@@ -121,6 +130,9 @@ func _input(event):
 		stop_screensaver()
 	if autoscroll:
 		stop_autoscrolling()
+	
+	# Handle tag navigation
+	handle_tag_navigation(event)
 
 func configure_pid_timer() -> void:
 	# Configure the timer
@@ -155,7 +167,7 @@ func scan_for_games(path: String) -> void:
 			
 		game_dir = dir.get_next()
 	
-func manually_add_games(path: String) -> void:
+func manually_add_games(_path: String) -> void:
 	if launcher_config.has_section("GAMES"):
 		for key in launcher_config.get_section_keys("GAMES"):
 			var game_data = launcher_config.get_value("GAMES", key)
@@ -550,3 +562,298 @@ func load_launcher_config() -> void:
 			print("SUCCESS: loaded launcher config file\n")
 		else:
 			print("WARNING: bad launcher config file ", status)
+
+# TAG FILTERING
+
+		# tag_container.anchor_left = 0.5
+		# tag_container.anchor_right = 0.5
+		# tag_container.offset_left = -200
+		# tag_container.offset_right = 200
+
+func setup_tag_filters() -> void:
+	# Create tag filter container if it doesn't exist
+	tag_container = $TagFilters
+	if not tag_container:
+		tag_container = HBoxContainer.new()
+		tag_container.name = "TagFilters"
+		tag_container.position.x = 10
+		tag_container.position.y = 10
+		tag_container.alignment = BoxContainer.ALIGNMENT_CENTER;
+		add_child(tag_container)
+	
+	# Clear existing tag buttons
+	for child in tag_container.get_children():
+		child.queue_free()
+	
+	# Get all unique attributes from games
+	var all_attributes = games_container.get_all_attributes()
+	
+	# Add spacing between buttons
+	tag_container.add_theme_constant_override("separation", 20)
+	
+	# Create empty style for transparent buttons
+	var empty_style = StyleBoxEmpty.new()
+	
+	# Add "All" button
+	var all_button = Button.new()
+	all_button.text = "All"
+	all_button.pressed.connect(_on_tag_filter_pressed.bind(""))
+	all_button.custom_minimum_size = Vector2(100, 40)
+	all_button.add_theme_stylebox_override("normal", empty_style)
+	all_button.add_theme_stylebox_override("hover", empty_style)
+	all_button.add_theme_stylebox_override("pressed", empty_style)
+	all_button.add_theme_stylebox_override("focus", empty_style)
+	tag_container.add_child(all_button)
+	
+	# Add "Recently Added" button
+	var recent_button = Button.new()
+	recent_button.text = "Recently Added"
+	recent_button.pressed.connect(_on_recent_filter_pressed)
+	recent_button.custom_minimum_size = Vector2(100, 40)
+	recent_button.add_theme_stylebox_override("normal", empty_style)
+	recent_button.add_theme_stylebox_override("hover", empty_style)
+	recent_button.add_theme_stylebox_override("pressed", empty_style)
+	recent_button.add_theme_stylebox_override("focus", empty_style)
+	tag_container.add_child(recent_button)
+	
+	# Add attribute buttons
+	for attribute in all_attributes:
+		var attribute_button = Button.new()
+		var display_info = get_attribute_display_info(attribute)
+		
+		if display_info.icon >= 0:
+			# Create button with icon
+			attribute_button.custom_minimum_size = Vector2(120, 40)
+			attribute_button.icon = create_attribute_icon(display_info.icon)
+		else:
+			attribute_button.custom_minimum_size = Vector2(100, 40)
+		
+		attribute_button.text = display_info.name
+		attribute_button.pressed.connect(_on_attribute_filter_pressed.bind(attribute))
+		attribute_button.add_theme_stylebox_override("normal", empty_style)
+		attribute_button.add_theme_stylebox_override("hover", empty_style)
+		attribute_button.add_theme_stylebox_override("pressed", empty_style)
+		attribute_button.add_theme_stylebox_override("focus", empty_style)
+		tag_container.add_child(attribute_button)
+	
+	# Update tag button focus
+	update_tag_button_focus()
+
+func _on_tag_filter_pressed(tag: String) -> void:
+	print("DEBUG: Tag filter pressed: ", tag)
+	games_container.filter_by_tag(tag, game_button)
+	
+	# Reconnect button signals after filtering
+	var buttons = games_container.get_children()
+	print("DEBUG: Found ", buttons.size(), " game buttons after filtering")
+	for b: GameButton in buttons:
+		if not b.focused.is_connected(on_game_btn_focused):
+			b.focused.connect(on_game_btn_focused)
+		if not b.pressed.is_connected(on_game_btn_pressed.bind(b)):
+			b.pressed.connect(on_game_btn_pressed.bind(b))
+	
+	# Auto-select first game to trigger hard refresh
+	auto_select_first_game()
+	
+	# Switch back to carousel mode
+	tag_filter_focused = false
+
+func _on_recent_filter_pressed() -> void:
+	games_container.filter_by_recent_date(game_button)  # Sort by date (no threshold)
+	
+	# Reconnect button signals after filtering
+	var buttons = games_container.get_children()
+	for b: GameButton in buttons:
+		if not b.focused.is_connected(on_game_btn_focused):
+			b.focused.connect(on_game_btn_focused)
+		if not b.pressed.is_connected(on_game_btn_pressed.bind(b)):
+			b.pressed.connect(on_game_btn_pressed.bind(b))
+	
+	# Auto-select first game to trigger hard refresh
+	auto_select_first_game()
+	
+	# Switch back to carousel mode
+	tag_filter_focused = false
+
+func _on_attribute_filter_pressed(attribute: String) -> void:
+	print("DEBUG: Attribute filter pressed: ", attribute)
+	games_container.filter_by_attribute(attribute, game_button)
+	
+	# Reconnect button signals after filtering
+	var buttons = games_container.get_children()
+	print("DEBUG: Found ", buttons.size(), " game buttons after filtering")
+	for b: GameButton in buttons:
+		if not b.focused.is_connected(on_game_btn_focused):
+			b.focused.connect(on_game_btn_focused)
+		if not b.pressed.is_connected(on_game_btn_pressed.bind(b)):
+			b.pressed.connect(on_game_btn_pressed.bind(b))
+	
+	# Auto-select first game to trigger hard refresh
+	auto_select_first_game()
+	
+	# Switch back to carousel mode
+	tag_filter_focused = false
+
+func handle_tag_navigation(event: InputEvent) -> void:
+	if not tag_container or tag_container.get_child_count() == 0:
+		return
+	
+	# Switch to tag filter mode with up arrow
+	if event.is_action_pressed("ui_up") and not tag_filter_focused:
+		tag_filter_focused = true
+		current_tag_index = 0
+		update_tag_button_focus()
+		get_viewport().set_input_as_handled()
+		return
+	
+	# Switch back to game carousel with down arrow
+	if event.is_action_pressed("ui_down") and tag_filter_focused:
+		tag_filter_focused = false
+		games_container.focus_selected()
+		get_viewport().set_input_as_handled()
+		return
+	
+	# Handle tag navigation when focused
+	if tag_filter_focused:
+		if event.is_action_pressed("ui_left"):
+			current_tag_index = max(0, current_tag_index - 1)
+			update_tag_button_focus()
+			get_viewport().set_input_as_handled()
+		elif event.is_action_pressed("ui_right"):
+			current_tag_index = min(tag_container.get_child_count() - 1, current_tag_index + 1)
+			update_tag_button_focus()
+			get_viewport().set_input_as_handled()
+		elif event.is_action_pressed("ui_accept"):
+			# Activate the currently focused tag button
+			var tag_button = tag_container.get_child(current_tag_index)
+			if tag_button is Button:
+				tag_button.emit_signal("pressed")
+			get_viewport().set_input_as_handled()
+
+func update_tag_button_focus() -> void:
+	if not tag_container:
+		return
+	
+	# Clear focus from all tag buttons
+	for child in tag_container.get_children():
+		if child is Button:
+			child.modulate = Color.WHITE
+			child.scale = Vector2.ONE
+	
+	# Highlight and expand the currently focused tag button
+	if current_tag_index >= 0 and current_tag_index < tag_container.get_child_count():
+		var focused_button = tag_container.get_child(current_tag_index)
+		if focused_button is Button:
+			focused_button.modulate = Color.YELLOW
+			focused_button.scale = Vector2(1.1, 1.1)
+
+func auto_select_first_game() -> void:
+	# Get the first game button from the filtered list
+	var game_buttons = games_container.get_children()
+	if game_buttons.size() > 0:
+		var first_game_button = game_buttons[0] as GameButton
+		if first_game_button:
+			# Set the carousel selected index
+			games_container.selected_idx = 0
+			# Force focus on the first game button (this will handle everything)
+			call_deferred("_force_focus_first_game", first_game_button)
+
+func update_ui_with_game(game: Game) -> void:
+	# Update title and description
+	if not game.description:
+		description.text = "No Description."
+	else:
+		description.text = game.description
+	
+	title.text = game.title
+	
+	# Update attributes
+	show_attributes(game)
+	
+	# Update background image
+	if not game.file("background"): 
+		bg.blend_textures_animated(bg.get_shader_texture(1), default_bg, 0.4)
+		return
+	var texture: ImageTexture = load_image_texture(game.file("background"))
+	if not texture: 
+		bg.blend_textures_animated(bg.get_shader_texture(1), default_bg, 0.4)
+		return
+	bg.blend_textures_animated(bg.get_shader_texture(1), texture, 0.4)
+
+func _force_focus_first_game(first_game_button: GameButton) -> void:
+	# Ensure the first game button gets focus
+	if is_instance_valid(first_game_button):
+		print("DEBUG: Forcing focus on first game: ", first_game_button.properties.title)
+		# Set focus and trigger all visual effects
+		first_game_button.grab_focus()
+		# Trigger the scale animation
+		first_game_button.toggle_focus_visuals(true)
+		# Call the focus handler to update UI
+		on_game_btn_focused(first_game_button)
+
+func _trigger_ui_update(btn: GameButton) -> void:
+	# Force the UI update by calling the focus handler directly
+	on_game_btn_focused(btn)
+
+# ATTRIBUTE ICON HELPERS
+
+func get_attribute_display_info(attribute: String) -> Dictionary:
+	# Map attribute names to display info (name and icon frame) from app.tscn
+	match attribute.to_lower():
+		"singleplayer":
+			return {"name": "Single Player", "icon": 73}
+		"multiplayer":
+			return {"name": "Two Players", "icon": 98}
+		"pvp":
+			return {"name": "Competitive", "icon": 25}
+		"coop":
+			return {"name": "Cooperative", "icon": 15}
+		"trackball":
+			return {"name": "Trackball", "icon": 43}
+		"leaderboards":
+			return {"name": "Leaderboards", "icon": 3}
+		"gamejam":
+			return {"name": "Game Jam Entry", "icon": 16}
+		"arcadejam":
+			return {"name": "Arcade Jam Entry", "icon": 81}
+		"construction":
+			return {"name": "Unfinished", "icon": 102}
+		"crashy":
+			return {"name": "Crashy", "icon": 76}
+		_:
+			return {"name": attribute.capitalize(), "icon": -1}
+
+func get_attribute_icon(attribute: String) -> int:
+	var info = get_attribute_display_info(attribute)
+	return info.icon
+
+func create_attribute_icon(frame: int) -> Texture2D:
+	# Create a temporary sprite to extract the frame, just like the Attribute scene does
+	var sprite = Sprite2D.new()
+	var sprite_sheet = preload("res://scenes/icons/sheet_white2x.png")
+	sprite.texture = sprite_sheet
+	sprite.hframes = 6
+	sprite.vframes = 20
+	sprite.frame = frame
+	
+	# Get the region of the sprite sheet for this frame
+	var texture_size = sprite_sheet.get_size()
+	var frame_width = texture_size.x / 6
+	var frame_height = texture_size.y / 20
+	var frame_x = (frame % 6) * frame_width
+	var frame_y = int(frame / 6) * frame_height
+	
+	# Extract the frame
+	var image = sprite_sheet.get_image()
+	var frame_image = image.get_region(Rect2i(frame_x, frame_y, frame_width, frame_height))
+	
+	# Create texture from frame and scale it down to half size
+	var texture = ImageTexture.new()
+	texture.set_image(frame_image)
+	
+	# Scale the image down to half size
+	var scaled_image = frame_image.duplicate()
+	scaled_image.resize(frame_width / 2, frame_height / 2)
+	var scaled_texture = ImageTexture.new()
+	scaled_texture.set_image(scaled_image)
+	return scaled_texture

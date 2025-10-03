@@ -28,6 +28,12 @@ var pinned := false
 # ATTRIBUTES
 var attributes: Dictionary = {}
 
+# TAGS
+var tags: Array[String] = []
+
+# DATE
+var date_added: String = ""
+
 # INTERNAL
 var sort_order: int
 
@@ -56,6 +62,24 @@ func parse_config():
 	pinned = config.get_value("SETTINGS", "pinned", true)
 	for key in config.get_section_keys("ATTRIBUTES"):
 		attributes[key] = config.get_value("ATTRIBUTES", key)
+	
+	# Load tags from config
+	if config.has_section("TAGS"):
+		var tags_value = config.get_value("TAGS", "list", [])
+		if typeof(tags_value) == TYPE_STRING:
+			# Handle comma-separated string format
+			var tags_array = tags_value.split(",")
+			tags.clear()
+			for tag in tags_array:
+				tags.append(tag.strip_edges())
+		elif typeof(tags_value) == TYPE_ARRAY:
+			tags.clear()
+			for tag in tags_value:
+				tags.append(str(tag))
+	
+	# Load date from config
+	date_added = config.get_value("GAME", "date_added", "")
+	
 	var arguments_string = config.get_value("GAME", "arguments", "")
 	arguments = arguments_string.split(" ")
 	
