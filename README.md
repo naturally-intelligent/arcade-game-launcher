@@ -120,6 +120,16 @@ Set 'visible = false' to quickly hide broken games without deleting them.
 
 All keys are optional. See source code to explain each key. Some keys may not yet be implemented, or shown as future possibilities.
 
+## Attributes
+
+Officially supported attributes:
+- multiplayer
+- singleplayer
+- coop
+- pvp
+- leaderboards
+- trackball
+
 ## Arcade Fork
 
 We forked this launcher to make a version for CGDA (Calgary Game Developers Association, https://www.calgary.games/). This is for a standup arcade cabinet, used for gamejam collections and showcasing locally made games. 
