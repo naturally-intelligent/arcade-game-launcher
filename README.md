@@ -63,6 +63,13 @@ pvp = true
 leaderboards = false
 trackball = false
 
+[ANIMATED CAPSULE]
+sprite_sheet = "sprite-sheet.png"
+horizontal_frames = 2
+vertical_frames = 2
+frame_count = 4
+frame_rate = 3
+
 ```
 You will also need an executable, a capsule image (600x900 recommended), an optional background image, and any other optional stuff hinted at in this document.
 
@@ -165,10 +172,10 @@ New features of this fork include:
 - Attributes
 - Filters
 - Logging
+- Animated Capsules
 - and more!
 
 Future features planned:
-- Animated Capsules
 - Recently Added Sort
 - Most Played Sort
 - Random Sort
