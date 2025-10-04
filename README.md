@@ -132,6 +132,18 @@ screensaver_title = "My Arcade"
 screensaver_time = 300
 screensaver_image = "my-screensaver.png"
 
+[FILTERS]
+all = true
+most = false
+recent = true
+random = false
+singleplayer = true
+multiplayer = true
+pvp = true
+coop = true
+trackball = false
+leaderboards = true
+
 # GAMES are optional, and can be written in this format:
 #  id = "/path/to/game"
 [GAMES]
