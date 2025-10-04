@@ -2,16 +2,69 @@
 
 A simple game launcher meant as a frontend for an arcade cabinet. Especially useful for showcasing a bunch of games from game jams. 
 
-Based on Godot Game Launcher from MrEliptik:
-https://github.com/MrEliptik/game_launcher
-
-*⚠ It's not aimed as being shipped with your game on Steam or other platforms.*
+It is primarly used by Calgary Game Developer Association (https://www.calgary.games) for their arcade cabinets. 
 
 <p align="center">
   <img src="media/launcher_v0.0.1.gif">
 </p>
 
-## How to add games
+## Adding Your Game
+
+This is the most important section for devs and teams who want to put their game on the launcher. 
+It is important to note that you do not need this launcher to test your game, but it is recommended.
+You need to create a **config.ini** for your game like this:
+
+```
+[GAME]
+title = "Game Title"
+executable = "Game Executable.exe"
+capsule = "Game Capsule.png"
+background = "Game Background.png"
+description = "Here is a text blurb.\nDescription of your game."
+date_added = "15-01-2025"
+
+[SETTINGS]
+visible = true
+
+[ATTRIBUTES]
+singleplayer = false
+multiplayer = true
+coop = true
+pvp = true
+leaderboards = false
+trackball = false
+
+```
+
+Here is a longer example with additional/optional settings, plus comments:
+
+```
+[GAME]
+title = "Game Title"
+executable = "Game Executable.exe"
+capsule = "Game Capsule.png"
+background = "Game Background.png"
+description = "Here is a text blurb.\nDescription of your game."
+arguments = "--fullscreen --keyboard"  # optional arguments to pass to your game executable
+date_added = "15-01-2025"  # optional date when your game was added
+qr = "QR Image.png"  # optional QR code image that can be displayed by the game
+
+[SETTINGS]
+visible = true  # a quick way to hide misbehaving game
+available = true  # tells the launcher to load/not load
+
+[ATTRIBUTES]
+singleplayer = false
+multiplayer = true
+coop = true
+pvp = true
+leaderboards = false
+trackball = false
+
+```
+
+
+## How to add setup the launcher with a list of games
 
 1. If not present, create a folder called **games** next to the executable.
 2. Inside, create a folder for each game you want. The name of the folder will be the name of the game.
@@ -33,22 +86,15 @@ game_launcher.exe
 │   │   └── config.ini
 
 
-
 ## How to navigate
 
 Navigate using keyboard or gamepad using the usual keys used for navigation (arrows keys, enter).
 
-`alt+enter` to toggle fullscreen
+`Alt+Enter` to toggle fullscreen
 
 ## Limitations
 
-Right now, the launcher supports windows and linux. Mac shouldn't be complicated, we just need to detect the correct extensions or file types. 
-
-All games or shortcuts must be placed inside the project subdirectory.
-
-## Development
-
-For development, you can use the **games** folder present in the project using the same configuration as explained above.
+Right now, the launcher only supports Windows and Linux. 
 
 ## Launcher Config
 
@@ -66,6 +112,7 @@ enforce_platform = false
 show_categories = false
 show_version = true
 overlay = "an-overlay-image.png"
+show_qr_codes = true
 
 [AUTOMATION]
 autoscroll = true
@@ -88,46 +135,9 @@ This can be saved as "user://launcher.ini" or "res://launcher.ini", with the fir
 
 ## Game Config
 
-Example of a game config INI file. Using a config file for each game is optional, but must be called "config.ini" and placed alongside the game executable. 
-
-```
-[GAME]
-title = "Game Title"
-executable = "Game Executable.exe"
-capsule = "Game Capsule.png"
-background = "Game Background.png"
-description = "Here is a text blurb.\n Remove this line to use description.txt."
-category = ["Tools", "Tests"]
-notice = "Coming Soon"
-arguments = "--fullscreen --keyboard"
-
-[SETTINGS]
-order = 4
-visible = true
-available = true
-pinned = false
-
-[ATTRIBUTES]
-singleplayer = false
-multiplayer = true
-coop = true
-pvp = true
-
-[TAGS]
-list = ["Arcade_Jam_24", "Misc"]
-
-date_added = "15-01-2024"
-```
-
 Config file keys for title, executable, capsule, and background will override any values detected in the directory scan. 
 
 Set 'visible = false' to quickly hide broken games without deleting them.
-
-**Tag Filtering**: Games can be tagged using the `[TAGS]` section. Tags are used to create filter buttons in the launcher interface, allowing users to quickly filter games by categories like "Arcade_Jam_24", "Arcade_Jam_25", or "Misc". The launcher will automatically generate filter buttons for all unique tags found across your games.
-
-**Recently Added Sort**: Use the `date_added` field in the `[GAME]` section to specify when a game was added (format: DD-MM-YYYY). The "Recently Added" filter button will sort all games by date with the most recent first, and games without dates appear at the end.
-
-All keys are optional. See source code to explain each key. Some keys may not yet be implemented, or shown as future possibilities.
 
 ## Attributes
 
@@ -153,28 +163,11 @@ New features of this fork include:
 - Tag-based Game Filtering
 - Categories (TODO)
 
-Depending on MrEliptik's decisions, these features may or may not be moved to the main launcher repo. If you don't need the added complexity of these new features and just want to demo your games, you can be confident in using the original repo!
-
-## 💁‍♂️ About MrEliptik
+## 💁‍♂️ Game Launcher Fork
 
 MrEliptik is the original creator of the game launcher:
 
-Full time indie gamedev. You can find me everywhere 👇
+https://github.com/MrEliptik/game_launcher
 
-- [Discord](https://discord.gg/83nFRPTP6t)
-- [YouTube - Gamedev](https://www.youtube.com/@MrEliptik)
-- [YouTube - Godot related](https://www.youtube.com/@mrelipteach)
-- [Twitter](https://twitter.com/mreliptik) 
-- [Instagram](https://www.instagram.com/mreliptik)
-- [Itch.io](https://mreliptik.itch.io/)
-- [All links](https://bento.me/mreliptik)
+We've deviated too far to merge!
 
-If you enjoyed this project and want to support me:
-
-**Get exlusive content and access to my game's source code**
-
-<a href='https://patreon.com/MrEliptik' target='_blank'><img height='36' style='border:0px;height:36px;' src='media/become_patreon.png' border='0' alt='Patreon link' /></a>
-
-**One time donations**
-
-<a href='https://ko-fi.com/H2H23ODS7' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://cdn.ko-fi.com/cdn/kofi1.png?v=3' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
