@@ -163,8 +163,6 @@ New features of this fork include:
 - Tag-based Game Filtering
 - Categories (TODO)
 
-## 💁‍♂️ Game Launcher Fork
-
 MrEliptik is the original creator of the game launcher:
 
 https://github.com/MrEliptik/game_launcher
