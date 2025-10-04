@@ -34,8 +34,8 @@ var screensaver_tween: Tween
 @onready var pid_timer: Timer = $Timers/PIDTimer
 @onready var games_container: GamesCarousel = $Carousel
 @onready var no_game_found = $NoGameFound
-@onready var title: RichTextLabel = %Description/Title
-@onready var description: RichTextLabel = %Description/Description
+@onready var title: RichTextLabel = %Title
+@onready var description: RichTextLabel = %Description
 @onready var version_btn = $VersionBtn
 
 @onready var check_for_updates := false
@@ -307,7 +307,7 @@ func on_game_btn_focused(game_button: GameButton) -> void:
 	if not game_button.game.description:
 		description.text = "No Description."
 	else:
-		description.text = '[center]'+game_button.game.description+'[/center]'
+		description.text = game_button.game.description
 	
 	if allow_bbtitles:
 		title.text = '[center]'+game_button.game.bbtitle+'[/center]'
@@ -485,9 +485,10 @@ func stop_screensaver():
 		screensaver_tween.kill()
 		start_allow_launch_timer()
 		screensaver_tween = null
+	if $Screensaver.visible:
+		hide_load_screen()
 	$Screensaver.visible = false
 	$Timers/ScreensaverTimer.start()
-	hide_load_screen()
 
 # LOAD SCREEN
 

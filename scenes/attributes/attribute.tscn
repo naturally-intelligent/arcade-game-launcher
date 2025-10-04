@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://byc63tttfiubh"]
 
-[ext_resource type="Script" path="res://scenes/attributes/attribute.gd" id="1_20exr"]
+[ext_resource type="Script" uid="uid://dmbk4igb2touu" path="res://scenes/attributes/attribute.gd" id="1_20exr"]
 [ext_resource type="Texture2D" uid="uid://dp0fpm5ut8nkd" path="res://media/sheet_white2x.png" id="1_npo1l"]
 
 [node name="Attribute" type="HBoxContainer"]

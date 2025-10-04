@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://c0ya18uwem535"]
 
-[ext_resource type="Script" path="res://scenes/carousel/carousel.gd" id="1_7hxxi"]
+[ext_resource type="Script" uid="uid://r3x6r4alw0fy" path="res://scenes/carousel/carousel.gd" id="1_7hxxi"]
 [ext_resource type="Texture2D" uid="uid://bpxmqyewmqdev" path="res://media/capsule_test.png" id="2_txpsk"]
 
 [node name="Games" type="Control"]

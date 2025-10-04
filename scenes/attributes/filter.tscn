@@ -1,12 +1,12 @@
 [gd_scene load_steps=6 format=3 uid="uid://ciw7qtcs6fbw0"]
 
 [ext_resource type="Texture2D" uid="uid://bgk1ce3j4myce" path="res://media/empty-60x60.png" id="1_ms50v"]
-[ext_resource type="Script" path="res://scenes/attributes/filter.gd" id="1_ym4gf"]
+[ext_resource type="Script" uid="uid://helhh06xw5xr" path="res://scenes/attributes/filter.gd" id="1_ym4gf"]
 [ext_resource type="Texture2D" uid="uid://dp0fpm5ut8nkd" path="res://media/sheet_white2x.png" id="2_hmlfg"]
 
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_de1dw"]
-
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_0p4nt"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_de1dw"]
 
 [node name="Filter" type="Button"]
 modulate = Color(0.666569, 0.666569, 0.666569, 1)
@@ -14,11 +14,11 @@ offset_right = 133.0
 offset_bottom = 32.0
 theme_override_constants/icon_max_width = 32
 theme_override_font_sizes/font_size = 12
-theme_override_styles/normal = SubResource("StyleBoxEmpty_de1dw")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_0p4nt")
+theme_override_styles/disabled = SubResource("StyleBoxEmpty_0p4nt")
 theme_override_styles/hover = SubResource("StyleBoxEmpty_0p4nt")
 theme_override_styles/pressed = SubResource("StyleBoxEmpty_0p4nt")
-theme_override_styles/disabled = SubResource("StyleBoxEmpty_0p4nt")
-theme_override_styles/focus = SubResource("StyleBoxEmpty_0p4nt")
+theme_override_styles/normal = SubResource("StyleBoxEmpty_de1dw")
 text = "Single Player  "
 icon = ExtResource("1_ms50v")
 script = ExtResource("1_ym4gf")

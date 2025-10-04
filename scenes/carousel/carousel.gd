@@ -20,11 +20,11 @@ func _ready():
 func _input(event: InputEvent):
 	# Only handle input if we're not in tag filter mode
 	if not launcher.filter_focused:
-		if event.is_action_pressed("ui_left"): 
+		if Input.is_action_pressed("ui_left"): 
 			if can_move:
 				move_left()
 			get_viewport().set_input_as_handled()
-		elif event.is_action_pressed("ui_right"):
+		elif Input.is_action_pressed("ui_right"):
 			if can_move:
 				move_right()
 			get_viewport().set_input_as_handled()
@@ -194,4 +194,3 @@ func filter_by_recent_date(game_button: PackedScene, _days: int = 30) -> void:
 	#print("DEBUG: Sorted ", games_with_dates.size(), " games with dates, ", games_without_dates.size(), " without dates")
 	active_filter = "recent"
 	refresh_game_buttons(game_button)
-

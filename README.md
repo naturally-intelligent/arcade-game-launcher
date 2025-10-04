@@ -4,7 +4,7 @@ A simple game launcher meant as a frontend for an arcade cabinet. Especially use
 
 It is primarly used by Calgary Game Developer Association (https://www.calgary.games) for their arcade cabinets. 
 
-Currently built on Godot 4.2
+Currently built on Godot 4.4.1
 
 <p align="center">
   <img src="media/screenshot.png">
