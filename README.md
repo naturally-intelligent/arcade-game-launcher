@@ -23,7 +23,7 @@ executable = "Game Executable.exe"
 capsule = "Game Capsule.png"
 background = "Game Background.png"
 description = "Here is a text blurb.\nDescription of your game."
-date_added = "15-01-2025"
+date_added = "DD-MM-YYYY"
 
 [SETTINGS]
 visible = true
@@ -48,7 +48,7 @@ capsule = "Game Capsule.png"
 background = "Game Background.png"
 description = "Here is a text blurb.\nDescription of your game."
 arguments = "--fullscreen --keyboard"  # optional arguments to pass to your game executable
-date_added = "15-01-2025"  # optional date when your game was added
+date_added = "DD-MM-YYYY"  # optional date when your game was added
 qr = "QR Image.png"  # optional QR code image that can be displayed by the game
 
 [SETTINGS]
@@ -64,7 +64,7 @@ leaderboards = false
 trackball = false
 
 ```
-
+You will also need an executable, a capsule image (600x900 recommended), an optional background image,
 
 ## How to add setup the launcher with a list of games
 
@@ -162,8 +162,24 @@ New features of this fork include:
 - Popup Notices
 - Mouse Support
 - Overlay Image
-- Tag-based Game Filtering
-- Categories (TODO)
+- Attributes
+- Filters
+- Logging
+- and more!
+
+Future features planned:
+- Animated Capsules
+- Recently Added Sort
+- Most Played Sort
+- Random Sort
+- Leaderboard Plugin Integration
+- Better Stats Logging
+
+## Contributors
+
+Dave Kerr - https://github.com/naturally-intelligent
+Twig - https://github.com/tm-nielsen
+Aidan Moisan - https://github.com/Acemoisan
 
 MrEliptik is the original creator of the game launcher:
 
