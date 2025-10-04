@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://brij0la5lpm40"]
 
-[ext_resource type="Script" path="res://scenes/app/scripts/notice.gd" id="1_1qkp7"]
+[ext_resource type="Script" path="res://scenes/app/notice.gd" id="1_rt245"]
 
 [node name="Notice" type="Label"]
 z_index = 2
@@ -8,7 +8,7 @@ custom_minimum_size = Vector2(0, 32)
 text = "Text Notice 1"
 horizontal_alignment = 1
 vertical_alignment = 1
-script = ExtResource("1_1qkp7")
+script = ExtResource("1_rt245")
 
 [node name="ExpireTimer" type="Timer" parent="."]
 wait_time = 5.0

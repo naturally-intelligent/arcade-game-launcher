@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://rg5y0f8we0t4"
-path="res://.godot/imported/cross.png-86c41b183d7d751138204eca400d2867.ctex"
+uid="uid://bgk1ce3j4myce"
+path="res://.godot/imported/empty-60x60.png-345c60dcf7ae7718bef5360cdf8adc9e.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://scenes/game_button/visuals/cross.png"
-dest_files=["res://.godot/imported/cross.png-86c41b183d7d751138204eca400d2867.ctex"]
+source_file="res://media/empty-60x60.png"
+dest_files=["res://.godot/imported/empty-60x60.png-345c60dcf7ae7718bef5360cdf8adc9e.ctex"]
 
 [params]
 

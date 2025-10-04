@@ -1,3 +1,4 @@
+# ATTRIBUTE
 @tool
 extends HBoxContainer
 class_name Attribute

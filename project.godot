@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="Arcade Launcher"
-config/version="1.0.2"
+config/version="1.1"
 config/tags=PackedStringArray("tool")
 run/main_scene="res://scenes/app/app.tscn"
 config/features=PackedStringArray("4.2", "GL Compatibility")
@@ -20,8 +20,8 @@ config/icon="res://icon.svg"
 
 [autoload]
 
-FocusChecker="*res://autoload/focus_checker.gd"
-util="*res://shared/utils/util.gd"
+FocusChecker="*res://scenes/autoload/focus_checker.gd"
+util="*res://utils/util.gd"
 
 [display]
 
@@ -30,7 +30,7 @@ window/size/viewport_height=1080
 window/size/mode=3
 window/size/window_width_override=1280
 window/size/window_height_override=720
-window/stretch/mode="viewport"
+window/stretch/mode="canvas_items"
 
 [input]
 

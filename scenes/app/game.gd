@@ -8,11 +8,13 @@ var subdirectory_path: String
 
 # PROPERTIES
 var title: String
+var bbtitle: String
 var executable: String
 var description: String
 var capsule: String
 var background: String
 var platform: String
+var qr: String
 var arguments: PackedStringArray
 
 # CONFIG
@@ -27,6 +29,9 @@ var pinned := false
 
 # ATTRIBUTES
 var attributes: Dictionary = {}
+
+# DATE
+var date_added: String = ""
 
 # INTERNAL
 var sort_order: int
@@ -45,17 +50,22 @@ func parse_config():
 	if not config:
 		return
 	title = config.get_value("GAME", "title", title)
+	bbtitle = config.get_value("GAME", "bbtitle", title)
 	executable = config.get_value("GAME", "executable", executable)
 	description = config.get_value("GAME", "description", description)
 	capsule = config.get_value("GAME", "capsule", capsule)
 	background = config.get_value("GAME", "background", background)
 	category = config.get_value("GAME", "category", [])
+	qr = config.get_value("GAME", "qr", qr)
 	order = config.get_value("SETTINGS", "order", 0)
 	visible = config.get_value("SETTINGS", "visible", true)
 	available = config.get_value("SETTINGS", "available", true)
 	pinned = config.get_value("SETTINGS", "pinned", true)
+	date_added = config.get_value("GAME", "date_added", "")
+	
 	for key in config.get_section_keys("ATTRIBUTES"):
 		attributes[key] = config.get_value("ATTRIBUTES", key)
+
 	var arguments_string = config.get_value("GAME", "arguments", "")
 	arguments = arguments_string.split(" ")
 	

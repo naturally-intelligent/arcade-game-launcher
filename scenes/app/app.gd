@@ -1,7 +1,7 @@
 # APP
 extends Control
+class_name ArcadeLauncher
 
-@export var game_button: PackedScene
 @export var default_bg: Texture
 @export_enum("windows", "linux") var platform := "windows"
 @export var enforce_platform := false
@@ -12,11 +12,17 @@ extends Control
 @export var show_version := true
 @export var screensaver := false
 @export var allow_mouse := false
+@export var allow_bbtitles := true
+@export var show_qr_codes := true
 
 var pid_watching: int = -1
 var games: Dictionary
 var current_game: Game
 var allow_game_launch := false
+
+var filters := {}
+var filter_focused: bool = false
+var current_filter_index: int = 0
 
 const console_spam_max = 3
 var console_spam := 0
@@ -24,16 +30,18 @@ var console_spam := 0
 var autoscroll_direction := 1
 var screensaver_tween: Tween
 
-@onready var bg: TextureRect = $BG
+@onready var bg: TextureRect = $Background
 @onready var pid_timer: Timer = $Timers/PIDTimer
-@onready var games_container: GamesCarousel = $Games
+@onready var games_container: GamesCarousel = $Carousel
 @onready var no_game_found = $NoGameFound
-@onready var title: Label = $Description/Title
-@onready var description: Label = $Description/Description
+@onready var title: RichTextLabel = %Description/Title
+@onready var description: RichTextLabel = %Description/Description
 @onready var version_btn = $VersionBtn
 
 @onready var check_for_updates := false
 @onready var update_checker := UpdateChecker.new()
+
+@onready var filter_container: HBoxContainer = %Filters
 
 var launcher_config: ConfigFile
 var launcher_config_file := "launcher.ini"
@@ -42,7 +50,10 @@ var log_file := "arcadelog.txt"
 var time_start: float
 var time_end: float
 
+const game_button_tscn = preload("res://scenes/game_button/game_button.tscn")
 const notice_tscn = preload("res://scenes/notice/notice.tscn")
+const attribute_tscn = preload("res://scenes/attributes/attribute.tscn")
+const filter_tscn = preload("res://scenes/attributes/filter.tscn")
 
 func _ready() -> void:
 	# LAUNCHER CONFIG (optional)
@@ -65,6 +76,7 @@ func _ready() -> void:
 	setup_overlay()
 	start_allow_launch_timer()
 	hide_attributes()
+	connect_filters()
 	
 	# PRINT
 	print_games_to_console()
@@ -74,11 +86,17 @@ func _ready() -> void:
 		no_game_found.visible = true
 	
 	# UI
-	var buttons: Array = games_container.create_game_buttons(game_button, games)
+	var buttons: Array = games_container.create_game_buttons(game_button_tscn, games)
 	for b: GameButton in buttons:
 		b.focused.connect(on_game_btn_focused)
 		b.pressed.connect(on_game_btn_pressed.bind(b))
+		if not allow_mouse:
+			b.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	
+	if not allow_mouse:
+		$LeftButton.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		$RightButton.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		
 	# AUTOMATION (screensaver, autoscroll)
 	screensaver_setup()
 	autoscroll_setup()
@@ -121,6 +139,7 @@ func _input(event):
 		stop_screensaver()
 	if autoscroll:
 		stop_autoscrolling()
+	handle_filter_navigation(event)
 
 func configure_pid_timer() -> void:
 	# Configure the timer
@@ -155,7 +174,7 @@ func scan_for_games(path: String) -> void:
 			
 		game_dir = dir.get_next()
 	
-func manually_add_games(path: String) -> void:
+func manually_add_games(_path: String) -> void:
 	if launcher_config.has_section("GAMES"):
 		for key in launcher_config.get_section_keys("GAMES"):
 			var game_data = launcher_config.get_value("GAMES", key)
@@ -288,9 +307,12 @@ func on_game_btn_focused(who: GameButton) -> void:
 	if not who.properties.description:
 		description.text = "No Description."
 	else:
-		description.text = who.properties.description
+		description.text = '[center]'+who.properties.description+'[/center]'
 	
-	title.text = who.properties.title
+	if allow_bbtitles:
+		title.text = '[center]'+who.properties.bbtitle+'[/center]'
+	else:
+		title.text = '[center]'+who.properties.title+'[/center]'
 	
 	show_attributes(who.properties)
 
@@ -305,6 +327,12 @@ func on_game_btn_focused(who: GameButton) -> void:
 		return
 	bg.blend_textures_animated(bg.get_shader_texture(1), texture, 0.4)
 	#bg.texture = texture
+	
+	%QR.visible = false
+	if show_qr_codes:
+		if who.properties.qr:
+			%QR.visible = true
+			%QR.texture = who.load_image_texture(who.properties.file("qr"))
 
 func on_game_btn_pressed(btn: GameButton) -> void:
 	hide_load_screen()
@@ -498,7 +526,7 @@ func show_attributes(game: Game):
 
 func log_game_start(game: Game):
 	time_start = Time.get_unix_time_from_system() 
-	var time_start_dict := Time.get_datetime_dict_from_unix_time(time_start) 
+	var time_start_dict := Time.get_datetime_dict_from_unix_time(int(time_start))
 	var message: String = "Started: " + game.title + "\n"
 	#message += "- "+game.executable + "\n" 
 	message += "- " + util.time_date_dict_to_string(time_start_dict)
@@ -506,7 +534,7 @@ func log_game_start(game: Game):
 
 func log_game_end(game: Game):
 	time_end = Time.get_unix_time_from_system() 
-	var time_end_dict := Time.get_datetime_dict_from_unix_time(time_end) 
+	var time_end_dict := Time.get_datetime_dict_from_unix_time(int(time_end))
 	var time_elapsed := time_end - time_start
 	#var time_elapsed_dict := Time.get_datetime_dict_from_unix_time(time_elapsed)
 	var message: String = "Ended: " + game.title  + "\n"
@@ -534,7 +562,7 @@ func load_launcher_config() -> void:
 	if not FileAccess.file_exists(_config_file):
 		_config_file = "res://" + launcher_config_file
 	if FileAccess.file_exists(_config_file):
-		var status = launcher_config.load(_config_file)
+		var status := launcher_config.load(_config_file)
 		if status == OK:
 			platform = launcher_config.get_value("LAUNCHER", "platform", platform)
 			enforce_platform = launcher_config.get_value("LAUNCHER", "enforce_platform", enforce_platform)
@@ -543,10 +571,154 @@ func load_launcher_config() -> void:
 			verbose_console = launcher_config.get_value("LAUNCHER", "verbose_console", verbose_console)
 			check_for_updates = launcher_config.get_value("LAUNCHER", "check_for_updates", check_for_updates)
 			allow_mouse = launcher_config.get_value("LAUNCHER", "allow_mouse", allow_mouse)
+			allow_bbtitles = launcher_config.get_value("LAUNCHER", "allow_bbtitles", allow_bbtitles)
+			show_qr_codes = launcher_config.get_value("LAUNCHER", "show_qr_codes", show_qr_codes)
 			show_version = launcher_config.get_value("LAUNCHER", "show_version", show_version)
 			screensaver = launcher_config.get_value("AUTOMATION", "screensaver", screensaver)
 			autoscroll = launcher_config.get_value("AUTOMATION", "autoscroll", autoscroll)
 			log_file = launcher_config.get_value("LOGGING", "log_file", log_file)
+			# load filters
+			if launcher_config.has_section("FILTERS"):
+				for filter: String in launcher_config.get_section_keys("FILTERS"):
+					var filter_value := util.string_to_bool(str(launcher_config.get_value("FILTERS", filter)))
+					filters[filter] = filter_value
 			print("SUCCESS: loaded launcher config file\n")
 		else:
 			print("WARNING: bad launcher config file ", status)
+
+# FILTERING
+
+func connect_filters():
+	for filter_button: Filter in %Filters.get_children():
+		filter_button.connect("pressed", _on_filter_pressed.bind(filter_button))
+		var filter = filter_button.name 
+		if filter in filters:
+			if not filters[filter]:
+				filter_button.queue_free()
+
+func _on_filter_pressed(filter_button: Filter):
+	var filter: String = filter_button.name
+	match filter:
+		"all":
+			filter_attribute('')
+		"recent":
+			_on_recent_filter_pressed()
+		"most":
+			pass # TODO
+		"random":
+			pass # TODO
+		_:
+			filter_attribute(filter)
+	#add_notice("Filter: " + filter_button.text, verbose)
+
+# WARNING: AI-generated code below
+
+func filter_attribute(filter: String) -> void:
+	games_container.filter_by_attribute(filter, game_button_tscn)
+	
+	# Reconnect button signals after filtering
+	var buttons = games_container.get_children()
+	#print("DEBUG: Found ", buttons.size(), " game buttons after filtering")
+	for b: GameButton in buttons:
+		if not b.focused.is_connected(on_game_btn_focused):
+			b.focused.connect(on_game_btn_focused)
+		if not b.pressed.is_connected(on_game_btn_pressed.bind(b)):
+			b.pressed.connect(on_game_btn_pressed.bind(b))
+	
+	# Auto-select first game to trigger hard refresh
+	auto_select_first_game()
+	
+	# Switch back to carousel mode
+	filter_focused = false
+	update_filter_button_focus()
+
+func _on_recent_filter_pressed() -> void:
+	games_container.filter_by_recent_date(game_button_tscn)  # Sort by date (no threshold)
+	
+	# Reconnect button signals after filtering
+	var buttons = games_container.get_children()
+	for b: GameButton in buttons:
+		if not b.focused.is_connected(on_game_btn_focused):
+			b.focused.connect(on_game_btn_focused)
+		if not b.pressed.is_connected(on_game_btn_pressed.bind(b)):
+			b.pressed.connect(on_game_btn_pressed.bind(b))
+	
+	# Auto-select first game to trigger hard refresh
+	auto_select_first_game()
+	
+	# Switch back to carousel mode
+	filter_focused = false
+
+func handle_filter_navigation(event: InputEvent) -> void:
+	if not filter_container or filter_container.get_child_count() == 0:
+		return
+	
+	# Switch to tag filter mode with up arrow
+	if event.is_action_pressed("ui_up") and not filter_focused:
+		filter_focused = true
+		#current_filter_index = 0
+		update_filter_button_focus()
+		get_viewport().set_input_as_handled()
+		return
+	
+	# Switch back to game carousel with down arrow
+	if event.is_action_pressed("ui_down") and filter_focused:
+		filter_focused = false
+		games_container.focus_selected()
+		get_viewport().set_input_as_handled()
+		return
+	
+	# Handle tag navigation when focused
+	if filter_focused:
+		if event.is_action_pressed("ui_left"):
+			current_filter_index = max(0, current_filter_index - 1)
+			update_filter_button_focus()
+			get_viewport().set_input_as_handled()
+		elif event.is_action_pressed("ui_right"):
+			current_filter_index = min(filter_container.get_child_count() - 1, current_filter_index + 1)
+			update_filter_button_focus()
+			get_viewport().set_input_as_handled()
+		elif event.is_action_pressed("ui_accept"):
+			# Activate the currently focused tag button
+			var tag_button = filter_container.get_child(current_filter_index)
+			if tag_button is Button:
+				tag_button.emit_signal("pressed")
+			get_viewport().set_input_as_handled()
+
+func update_filter_button_focus() -> void:
+	if not filter_container:
+		return
+	
+	# Clear focus from all tag buttons
+	for child: Filter in filter_container.get_children():
+		child.mark_inactive()
+	
+	# Highlight and expand the currently focused tag button
+	if current_filter_index >= 0 and current_filter_index < filter_container.get_child_count():
+		var focused_button: Filter = filter_container.get_child(current_filter_index)
+		if filter_focused:
+			focused_button.mark_focused()
+		else:
+			focused_button.mark_active()
+
+func auto_select_first_game() -> void:
+	# Get the first game button from the filtered list
+	var game_buttons = games_container.get_children()
+	if game_buttons.size() > 0:
+		var first_game_button = game_buttons[0] as GameButton
+		if first_game_button:
+			# Set the carousel selected index
+			games_container.selected_idx = 0
+			# Force focus on the first game button (this will handle everything)
+			call_deferred("_force_focus_first_game", first_game_button)
+
+func _force_focus_first_game(first_game_button: GameButton) -> void:
+	# Ensure the first game button gets focus
+	if is_instance_valid(first_game_button):
+		#print("DEBUG: Forcing focus on first game: ", first_game_button.properties.title)
+		# Set focus and trigger all visual effects
+		first_game_button.grab_focus()
+		# Trigger the scale animation
+		first_game_button.toggle_focus_visuals(true)
+		# Call the focus handler to update UI
+		on_game_btn_focused(first_game_button)

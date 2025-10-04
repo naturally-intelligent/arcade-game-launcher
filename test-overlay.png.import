@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bpxmqyewmqdev"
-path="res://.godot/imported/capsule_test.png-8c42f6e5429fc2173dd14fe22d029589.ctex"
+uid="uid://c7qgoimgssvhf"
+path="res://.godot/imported/test-overlay.png-294138d1ef6868011b9bd7ec0c030635.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://scenes/game_button/visuals/capsule_test.png"
-dest_files=["res://.godot/imported/capsule_test.png-8c42f6e5429fc2173dd14fe22d029589.ctex"]
+source_file="res://test-overlay.png"
+dest_files=["res://.godot/imported/test-overlay.png-294138d1ef6868011b9bd7ec0c030635.ctex"]
 
 [params]
 
