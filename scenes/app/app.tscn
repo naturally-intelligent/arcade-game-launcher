@@ -1,15 +1,17 @@
-[gd_scene load_steps=20 format=3 uid="uid://dh01oxe50pj27"]
+[gd_scene load_steps=22 format=3 uid="uid://dh01oxe50pj27"]
 
-[ext_resource type="Script" path="res://scenes/app/scripts/app.gd" id="1_ov0up"]
-[ext_resource type="PackedScene" uid="uid://dweckt5oraox7" path="res://scenes/game_button/game_button.tscn" id="2_t5myg"]
-[ext_resource type="Texture2D" uid="uid://dt4qwfs1yjhx3" path="res://scenes/shared/visuals/gradient_bg.tres" id="3_0g1gi"]
-[ext_resource type="Shader" path="res://scenes/shared/shaders/blur.gdshader" id="3_n8sr3"]
-[ext_resource type="Shader" path="res://scenes/shared/shaders/texture_blend.gdshader" id="4_7um57"]
-[ext_resource type="Script" path="res://scenes/app/scripts/version.gd" id="4_df76v"]
-[ext_resource type="Script" path="res://scenes/carousel/scripts/carousel.gd" id="4_yrr54"]
-[ext_resource type="Texture2D" uid="uid://dph8j6sb0fjbv" path="res://scenes/game_button/visuals/bg_test.png" id="5_o0uvn"]
-[ext_resource type="Script" path="res://scenes/app/scripts/bg_blend.gd" id="6_2ddv3"]
+[ext_resource type="Theme" uid="uid://u0v4125khbnj" path="res://media/launcher_theme.tres" id="1_g7tpw"]
+[ext_resource type="Script" path="res://scenes/app/app.gd" id="1_ov0up"]
+[ext_resource type="Texture2D" uid="uid://dt4qwfs1yjhx3" path="res://media/gradient_bg.tres" id="3_0g1gi"]
+[ext_resource type="Shader" path="res://scenes/shaders/blur.gdshader" id="3_n8sr3"]
+[ext_resource type="Shader" path="res://scenes/shaders/texture_blend.gdshader" id="4_7um57"]
+[ext_resource type="Script" path="res://scenes/app/version.gd" id="4_df76v"]
+[ext_resource type="Texture2D" uid="uid://dph8j6sb0fjbv" path="res://media/bg_test.png" id="5_o0uvn"]
+[ext_resource type="Script" path="res://scenes/app/bg_blend.gd" id="6_2ddv3"]
+[ext_resource type="PackedScene" uid="uid://c0ya18uwem535" path="res://scenes/carousel/carousel.tscn" id="8_gjd2l"]
+[ext_resource type="Texture2D" uid="uid://bkcdlq5qkm8x6" path="res://media/qr-example.png" id="9_8qy26"]
 [ext_resource type="PackedScene" uid="uid://byc63tttfiubh" path="res://scenes/attributes/attribute.tscn" id="10_ctef4"]
+[ext_resource type="PackedScene" uid="uid://ciw7qtcs6fbw0" path="res://scenes/attributes/filter.tscn" id="10_qt8c2"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_psg6v"]
 shader = ExtResource("4_7um57")
@@ -101,7 +103,7 @@ _data = {
 "default": SubResource("Animation_r4pf5")
 }
 
-[node name="App" type="Control"]
+[node name="ArcadeLauncher" type="Control"]
 process_mode = 3
 layout_mode = 3
 anchors_preset = 15
@@ -109,11 +111,11 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = ExtResource("1_g7tpw")
 script = ExtResource("1_ov0up")
-game_button = ExtResource("2_t5myg")
 default_bg = ExtResource("3_0g1gi")
 
-[node name="BG" type="TextureRect" parent="."]
+[node name="Background" type="TextureRect" parent="."]
 self_modulate = Color(0.486275, 0.486275, 0.486275, 1)
 material = SubResource("ShaderMaterial_psg6v")
 layout_mode = 1
@@ -127,7 +129,7 @@ texture = ExtResource("3_0g1gi")
 script = ExtResource("6_2ddv3")
 metadata/_edit_lock_ = true
 
-[node name="GradientBG2" type="TextureRect" parent="."]
+[node name="GradientBG" type="TextureRect" parent="Background"]
 self_modulate = Color(0.486275, 0.486275, 0.486275, 1)
 material = SubResource("ShaderMaterial_qsltc")
 layout_mode = 1
@@ -140,7 +142,7 @@ mouse_filter = 2
 texture = ExtResource("3_0g1gi")
 metadata/_edit_lock_ = true
 
-[node name="Darken" type="ColorRect" parent="."]
+[node name="Darken" type="ColorRect" parent="Background"]
 self_modulate = Color(1, 1, 1, 0.4)
 layout_mode = 1
 anchors_preset = 15
@@ -152,20 +154,70 @@ mouse_filter = 2
 color = Color(0.121569, 0.121569, 0.121569, 1)
 metadata/_edit_lock_ = true
 
-[node name="Games" type="Control" parent="."]
+[node name="Carousel" parent="." node_paths=PackedStringArray("launcher") instance=ExtResource("8_gjd2l")]
+layout_mode = 0
+anchors_preset = 0
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 0.0
+anchor_bottom = 0.0
+offset_left = 965.0
+offset_top = 361.0
+offset_right = 965.0
+offset_bottom = 361.0
+grow_horizontal = 1
+grow_vertical = 1
+launcher = NodePath("..")
+
+[node name="DescriptionCenter" type="HBoxContainer" parent="."]
 layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_top = -188.0
-offset_bottom = -188.0
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -400.0
+offset_bottom = -76.0
 grow_horizontal = 2
-grow_vertical = 2
-script = ExtResource("4_yrr54")
-button_offset = Vector2(75, 0)
-metadata/_edit_lock_ = true
+grow_vertical = 0
+alignment = 1
+
+[node name="Description" type="VBoxContainer" parent="DescriptionCenter"]
+unique_name_in_owner = true
+clip_contents = true
+custom_minimum_size = Vector2(1200, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/separation = 10
+
+[node name="Title" type="RichTextLabel" parent="DescriptionCenter/Description"]
+layout_mode = 2
+theme_override_font_sizes/normal_font_size = 32
+bbcode_enabled = true
+text = "[center]Game name[/center]"
+fit_content = true
+scroll_active = false
+
+[node name="Spacer" type="Control" parent="DescriptionCenter/Description"]
+custom_minimum_size = Vector2(0, 8)
+layout_mode = 2
+
+[node name="Description" type="RichTextLabel" parent="DescriptionCenter/Description"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_font_sizes/normal_font_size = 24
+bbcode_enabled = true
+text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut[center] labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.[/center]"
+scroll_active = false
+
+[node name="QR" type="TextureRect" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 75.0
+offset_top = 840.0
+offset_right = 239.0
+offset_bottom = 1004.0
+texture = ExtResource("9_8qy26")
+expand_mode = 1
 
 [node name="NoGameFound" type="Label" parent="."]
 visible = false
@@ -200,95 +252,168 @@ offset_bottom = -19.0
 grow_horizontal = 0
 grow_vertical = 0
 theme_override_font_sizes/font_size = 22
-text = "0.1.3"
+text = "1.1"
 underline = 1
-uri = "https://api.github.com/repos/MrEliptik/GameLauncher/releases/latest"
+uri = "https://github.com/naturally-intelligent/arcade-game-launcher"
 script = ExtResource("4_df76v")
 
-[node name="Attributes" type="VBoxContainer" parent="."]
+[node name="Filters" type="HBoxContainer" parent="."]
 unique_name_in_owner = true
-layout_mode = 0
-offset_left = 1619.0
-offset_top = 314.0
-offset_right = 1907.0
-offset_bottom = 1064.0
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 7.0
+offset_bottom = 39.0
+grow_horizontal = 2
+alignment = 1
+
+[node name="all" parent="Filters" instance=ExtResource("10_qt8c2")]
+layout_mode = 2
+text = "All  "
+button_text = "All"
+icon_index = 30
+metadata/_edit_horizontal_guides_ = [60.0]
+
+[node name="recent" parent="Filters" instance=ExtResource("10_qt8c2")]
+layout_mode = 2
+text = "Recently Added  "
+button_text = "Recently Added"
+icon_index = 32
+metadata/_edit_horizontal_guides_ = [60.0]
+
+[node name="most" parent="Filters" instance=ExtResource("10_qt8c2")]
+layout_mode = 2
+text = "Most Played  "
+button_text = "Most Played"
+icon_index = 27
+metadata/_edit_horizontal_guides_ = [60.0]
+
+[node name="singleplayer" parent="Filters" instance=ExtResource("10_qt8c2")]
+layout_mode = 2
+text = "Single Player  "
+icon_index = 73
+metadata/_edit_horizontal_guides_ = [60.0]
+
+[node name="multiplayer" parent="Filters" instance=ExtResource("10_qt8c2")]
+layout_mode = 2
+text = "Two-Player  "
+button_text = "Two-Player"
+icon_index = 98
+metadata/_edit_horizontal_guides_ = [60.0]
+
+[node name="pvp" parent="Filters" instance=ExtResource("10_qt8c2")]
+layout_mode = 2
+text = "Competitive  "
+button_text = "Competitive"
+icon_index = 25
+metadata/_edit_horizontal_guides_ = [60.0]
+
+[node name="coop" parent="Filters" instance=ExtResource("10_qt8c2")]
+layout_mode = 2
+text = "Cooperative  "
+button_text = "Cooperative"
+icon_index = 15
+metadata/_edit_horizontal_guides_ = [60.0]
+
+[node name="trackball" parent="Filters" instance=ExtResource("10_qt8c2")]
+layout_mode = 2
+text = "Trackball  "
+button_text = "Trackball"
+icon_index = 43
+metadata/_edit_horizontal_guides_ = [60.0]
+
+[node name="leaderboards" parent="Filters" instance=ExtResource("10_qt8c2")]
+layout_mode = 2
+text = "Leaderboards  "
+button_text = "Leaderboards"
+icon_index = 3
+metadata/_edit_horizontal_guides_ = [60.0]
+
+[node name="random" parent="Filters" instance=ExtResource("10_qt8c2")]
+layout_mode = 2
+text = "Random  "
+button_text = "Random"
+icon_index = 38
+metadata/_edit_horizontal_guides_ = [60.0]
+
+[node name="AttributesAlign" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 11
+anchor_left = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -456.0
+offset_top = 364.0
+offset_right = -41.0
+offset_bottom = -23.0
+grow_horizontal = 0
+grow_vertical = 2
+alignment = 2
+
+[node name="Attributes" type="VBoxContainer" parent="AttributesAlign"]
+unique_name_in_owner = true
+layout_mode = 2
 theme_override_constants/separation = 0
 alignment = 2
 
-[node name="singleplayer" parent="Attributes" instance=ExtResource("10_ctef4")]
+[node name="singleplayer" parent="AttributesAlign/Attributes" instance=ExtResource("10_ctef4")]
 layout_mode = 2
 text = "Single Player"
 icon = 73
 
-[node name="multiplayer" parent="Attributes" instance=ExtResource("10_ctef4")]
+[node name="multiplayer" parent="AttributesAlign/Attributes" instance=ExtResource("10_ctef4")]
 layout_mode = 2
 text = "Two Players"
 icon = 98
 
-[node name="pvp" parent="Attributes" instance=ExtResource("10_ctef4")]
+[node name="pvp" parent="AttributesAlign/Attributes" instance=ExtResource("10_ctef4")]
 layout_mode = 2
 text = "Competitive"
 icon = 25
 
-[node name="coop" parent="Attributes" instance=ExtResource("10_ctef4")]
+[node name="coop" parent="AttributesAlign/Attributes" instance=ExtResource("10_ctef4")]
 layout_mode = 2
 text = "Cooperative"
 icon = 15
 
-[node name="trackball" parent="Attributes" instance=ExtResource("10_ctef4")]
+[node name="trackball" parent="AttributesAlign/Attributes" instance=ExtResource("10_ctef4")]
 layout_mode = 2
 text = "Trackball"
 icon = 43
 
-[node name="leaderboards" parent="Attributes" instance=ExtResource("10_ctef4")]
+[node name="leaderboards" parent="AttributesAlign/Attributes" instance=ExtResource("10_ctef4")]
 layout_mode = 2
 text = "Leaderboards"
 icon = 3
 
-[node name="gamejam" parent="Attributes" instance=ExtResource("10_ctef4")]
+[node name="gamejam" parent="AttributesAlign/Attributes" instance=ExtResource("10_ctef4")]
 layout_mode = 2
 text = "Game Jam Entry"
 icon = 16
 
-[node name="arcadejam" parent="Attributes" instance=ExtResource("10_ctef4")]
+[node name="arcadejam" parent="AttributesAlign/Attributes" instance=ExtResource("10_ctef4")]
 layout_mode = 2
 text = "Arcade Jam Entry"
 icon = 81
 
-[node name="construction" parent="Attributes" instance=ExtResource("10_ctef4")]
+[node name="albertajam" parent="AttributesAlign/Attributes" instance=ExtResource("10_ctef4")]
+layout_mode = 2
+text = "Alberta Jam Entry"
+icon = 99
+
+[node name="construction" parent="AttributesAlign/Attributes" instance=ExtResource("10_ctef4")]
+visible = false
 layout_mode = 2
 text = "Unfinished"
 icon = 102
 
-[node name="crashy" parent="Attributes" instance=ExtResource("10_ctef4")]
+[node name="crashy" parent="AttributesAlign/Attributes" instance=ExtResource("10_ctef4")]
+visible = false
 layout_mode = 2
 text = "Crashy"
 icon = 76
 
-[node name="Description" type="VBoxContainer" parent="."]
-layout_mode = 0
-offset_left = 614.0
-offset_top = 701.0
-offset_right = 1334.0
-offset_bottom = 1693.0
-theme_override_constants/separation = 10
-
-[node name="Title" type="Label" parent="Description"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 38
-text = "Game name"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="Description" type="Label" parent="Description"]
-layout_mode = 2
-size_flags_vertical = 3
-theme_override_font_sizes/font_size = 24
-text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
-autowrap_mode = 3
-
 [node name="Overlay" type="TextureRect" parent="."]
-visible = false
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0
@@ -296,6 +421,7 @@ mouse_filter = 2
 
 [node name="Loading" type="ColorRect" parent="."]
 unique_name_in_owner = true
+visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -313,7 +439,7 @@ grow_horizontal = 2
 grow_vertical = 2
 alignment = 1
 
-[node name="Label" type="Label" parent="Loading/Labels"]
+[node name="LoadingLabel" type="Label" parent="Loading/Labels"]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 60
@@ -328,16 +454,6 @@ theme_override_font_sizes/font_size = 40
 text = "Game Name"
 horizontal_alignment = 1
 vertical_alignment = 1
-
-[node name="Notices" type="VBoxContainer" parent="."]
-unique_name_in_owner = true
-layout_mode = 0
-offset_left = 497.0
-offset_top = 9.0
-offset_right = 1474.0
-offset_bottom = 242.0
-theme_override_constants/separation = 3
-metadata/_edit_lock_ = true
 
 [node name="LeftButton" type="Button" parent="."]
 layout_mode = 0
@@ -397,6 +513,8 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_right = 19200.0
+offset_bottom = 10800.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_font_sizes/font_size = 80
@@ -412,6 +530,16 @@ libraries = {
 }
 autoplay = "default"
 speed_scale = 0.11
+
+[node name="Notices" type="VBoxContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 465.0
+offset_top = 831.0
+offset_right = 1442.0
+offset_bottom = 1064.0
+theme_override_constants/separation = 3
+alignment = 2
 
 [node name="Timers" type="Node" parent="."]
 
