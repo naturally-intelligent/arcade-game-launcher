@@ -7,7 +7,7 @@ It is primarly used by Calgary Game Developer Association (https://www.calgary.g
 Currently built on Godot 4.2
 
 <p align="center">
-  <img src="media/launcher_v0.0.1.gif">
+  <img src="media/screenshot.png">
 </p>
 
 ## Adding Your Game
