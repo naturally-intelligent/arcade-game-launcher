@@ -64,7 +64,7 @@ leaderboards = false
 trackball = false
 
 ```
-You will also need an executable, a capsule image (600x900 recommended), an optional background image,
+You will also need an executable, a capsule image (600x900 recommended), an optional background image, and any other optional stuff hinted at in this document.
 
 ## How to add setup the launcher with a list of games
 
@@ -177,9 +177,9 @@ Future features planned:
 
 ## Contributors
 
-Dave Kerr - https://github.com/naturally-intelligent
-Twig - https://github.com/tm-nielsen
-Aidan Moisan - https://github.com/Acemoisan
+- Dave Kerr - https://github.com/naturally-intelligent
+- Twig - https://github.com/tm-nielsen
+- Aidan Moisan - https://github.com/Acemoisan
 
 MrEliptik is the original creator of the game launcher:
 
