@@ -33,11 +33,18 @@ var attributes: Dictionary = {}
 # DATE
 var date_added: String = ""
 
+# ANIMATION
+var animated_capsule: String
+var animated_capsule_hframes: int
+var animated_capsule_vframes: int
+var animated_capsule_frame_count: int
+var animated_capsule_frame_rate: int
+
 # INTERNAL
 var sort_order: int
 
 # Return a file with the full directory included
-func file(property: String) -> String:
+func get_file(property: String) -> String:
 	if property in self:
 		return subdirectory_path.path_join(get(property))
 	else:
@@ -62,6 +69,12 @@ func parse_config():
 	available = config.get_value("SETTINGS", "available", true)
 	pinned = config.get_value("SETTINGS", "pinned", true)
 	date_added = config.get_value("GAME", "date_added", "")
+	
+	animated_capsule = config.get_value("ANIMATED CAPSULE", "sprite_sheet", animated_capsule)
+	animated_capsule_hframes = config.get_value("ANIMATED CAPSULE", "horizontal_frames", 1)
+	animated_capsule_vframes = config.get_value("ANIMATED CAPSULE", "vertical_frames", 1)
+	animated_capsule_frame_count = config.get_value("ANIMATED CAPSULE", "frame_count", 1)
+	animated_capsule_frame_rate = config.get_value("ANIMATED CAPSULE", "frame_rate", 12)
 	
 	for key in config.get_section_keys("ATTRIBUTES"):
 		attributes[key] = config.get_value("ATTRIBUTES", key)

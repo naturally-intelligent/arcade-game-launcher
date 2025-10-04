@@ -125,7 +125,7 @@ func refresh_game_buttons(game_button: PackedScene) -> Array:
 		if game.visible:
 			var instance: GameButton = game_button.instantiate()
 			instance.game_name = game.subdirectory
-			instance.properties = game
+			instance.game = game
 			add_child(instance)
 			instance.position -= instance.size / 2.0
 			instance.position.x += (instance.size.x + button_offset.x) * count

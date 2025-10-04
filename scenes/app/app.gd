@@ -87,11 +87,11 @@ func _ready() -> void:
 	
 	# UI
 	var buttons: Array = games_container.create_game_buttons(game_button_tscn, games)
-	for b: GameButton in buttons:
-		b.focused.connect(on_game_btn_focused)
-		b.pressed.connect(on_game_btn_pressed.bind(b))
+	for game_button: GameButton in buttons:
+		game_button.focused.connect(on_game_btn_focused)
+		game_button.pressed.connect(on_game_btn_pressed.bind(game_button))
 		if not allow_mouse:
-			b.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			game_button.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	
 	if not allow_mouse:
 		$LeftButton.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -127,7 +127,7 @@ func _notification(what: int) -> void:
 		#taskkill /PID pid_watching
 		#OS.execute(taskkill, ("/PID", str(pid_watching)])
 
-func _input(event):
+func _input(event: InputEvent):
 	if Input.is_action_just_pressed("toggle_fullscreen"):
 		if DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_FULLSCREEN:
 			DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
@@ -260,7 +260,7 @@ func launch_game(game_name: String) -> bool:
 	if not game.executable: 
 		add_notice("No executable set for game: " + game.title)
 		return false
-	var executable_path: String = game.file("executable")
+	var executable_path: String = game.get_file("executable")
 	if FileAccess.file_exists(executable_path):
 		games_container.can_move = false
 		pid_watching = OS.create_process(executable_path, game.arguments)
@@ -301,40 +301,36 @@ func on_pid_timer_timeout() -> void:
 		log_game_end(current_game)
 		current_game = null
 
-func on_game_btn_focused(who: GameButton) -> void:
+func on_game_btn_focused(game_button: GameButton) -> void:
 	hide_load_screen()
 
-	if not who.properties.description:
+	if not game_button.game.description:
 		description.text = "No Description."
 	else:
-		description.text = '[center]'+who.properties.description+'[/center]'
+		description.text = '[center]'+game_button.game.description+'[/center]'
 	
 	if allow_bbtitles:
-		title.text = '[center]'+who.properties.bbtitle+'[/center]'
+		title.text = '[center]'+game_button.game.bbtitle+'[/center]'
 	else:
-		title.text = '[center]'+who.properties.title+'[/center]'
+		title.text = '[center]'+game_button.game.title+'[/center]'
 	
-	show_attributes(who.properties)
+	show_attributes(game_button.game)
 
-	if not who.properties.file("background"): 
-		#bg.texture = default_bg
-		bg.blend_textures_animated(bg.get_shader_texture(1), default_bg, 0.4)
-		return
-	var texture: ImageTexture = who.load_image_texture(who.properties.file("background"))
-	if not texture: 
-		bg.blend_textures_animated(bg.get_shader_texture(1), default_bg, 0.4)
-		#bg.texture = default_bg
-		return
-	bg.blend_textures_animated(bg.get_shader_texture(1), texture, 0.4)
-	#bg.texture = texture
+	var background_path = game_button.game.get_file("background")
+	if FileAccess.file_exists(background_path):
+		var texture: ImageTexture = util.load_image_texture(background_path)
+		if texture: 
+			bg.blend_textures_animated(bg.get_shader_texture(1), texture, 0.4)
+			return
+	bg.blend_textures_animated(bg.get_shader_texture(1), default_bg, 0.4)
 	
 	%QR.visible = false
 	if show_qr_codes:
-		if who.properties.qr:
+		if game_button.game.qr:
 			%QR.visible = true
-			%QR.texture = who.load_image_texture(who.properties.file("qr"))
+			%QR.texture = game_button.load_image_texture(game_button.game.get_file("qr"))
 
-func on_game_btn_pressed(btn: GameButton) -> void:
+func on_game_btn_pressed(game_button: GameButton) -> void:
 	hide_load_screen()
 	# If game already launched, don't launch another one
 	if pid_watching > 0:
@@ -344,7 +340,7 @@ func on_game_btn_pressed(btn: GameButton) -> void:
 		add_notice("Just wait a second...")
 		allow_game_launch = true
 		return
-	launch_game(btn.game_name)
+	launch_game(game_button.game_name)
 
 func on_released_parsed(release: Dictionary) -> void:
 	print("release: ", release["version"])

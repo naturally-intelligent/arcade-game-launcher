@@ -92,3 +92,15 @@ func is_date_after(date_str: String, cutoff_str: String) -> bool:
 		return false
 	else:
 		return date_day >= cutoff_day
+
+func load_image_texture(path: String) -> ImageTexture:
+	var loaded_image: Image = Image.new()
+	if !FileAccess.file_exists(path) || loaded_image.load(path) != OK:
+		push_warning("Failed to load image texture at: ", path)
+		return null
+	else:
+		var image_texture: ImageTexture = ImageTexture.new()
+		image_texture.set_image(loaded_image)
+		return image_texture
+		
+		
