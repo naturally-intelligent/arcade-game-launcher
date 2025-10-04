@@ -24,17 +24,18 @@ func slice(horizontal_frames: int = 1, vertical_frames: int = 1):
 
 	region = Rect2i(0, 0, frame_size.x, frame_size.y)
 
-func start_animation_tween(bound_node: Node, frame_count: int = 1, frame_rate: int = 12):
+func start_animation_tween(bound_node: Node, frame_count: int = 1, frame_rate: int = 12) -> Tween:
 	if frame_count == 1:
 		if horizontal_frame_count == 1 && vertical_frame_count == 1:
 			return
 		frame_count = horizontal_frame_count * vertical_frame_count
 		
-	var duration = float(frame_count) / frame_rate
-	var animation_tween = bound_node.create_tween()
+	var duration := float(frame_count) / frame_rate
+	var animation_tween := bound_node.create_tween()
 	animation_tween.set_loops()
 	animation_tween.set_trans(Tween.TRANS_LINEAR)
 	animation_tween.tween_method(_set_animation_frame, -0.999, frame_count - 1, duration)
+	return animation_tween
 
 
 func _set_animation_frame(frame_value: float):
