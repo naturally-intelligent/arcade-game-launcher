@@ -44,26 +44,26 @@ Here is a longer example with additional/optional settings, plus comments:
 [GAME]
 title = "Game Title"
 executable = "Game Executable.exe"
-capsule = "Game Capsule.png"
-background = "Game Background.png"
-description = "Here is a text blurb.\nDescription of your game."
+capsule = "Game Capsule.png"  # 600x900 recommended
+background = "Game Background.png"  # optional 1920x1080, will be blurred by a shader
+description = "Here is a text blurb.\nDescription of your game."  # dont put too much here, use your game for extended info. 7 lines max
 arguments = "--fullscreen --keyboard"  # optional arguments to pass to your game executable
-date_added = "DD-MM-YYYY"  # optional date when your game was added
-qr = "QR Image.png"  # optional QR code image that can be displayed by the game
+date_added = "DD-MM-YYYY"  # optional date when your game was added, used by the Recently Added filter
+qr = "QR Image.png"  # optional QR code image that can be displayed by the launcher
 
 [SETTINGS]
 visible = true  # a quick way to hide misbehaving game
 available = true  # tells the launcher to load/not load
 
 [ATTRIBUTES]
-singleplayer = false
-multiplayer = true
-coop = true
-pvp = true
-leaderboards = false
-trackball = false
+singleplayer = false  # if your game has 1-player mode
+multiplayer = true  # if your game has 2-player mode (local)
+coop = true        # if your 2-player game is co-operative
+pvp = true         # if your 2-player game is competitive
+leaderboards = false   # if your game has high-score entry
+trackball = false     # if your game uses the trackball
 
-[ANIMATED CAPSULE]
+[ANIMATED CAPSULE]  # optional animated capsule, but you must still include static capsule
 sprite_sheet = "sprite-sheet.png"
 horizontal_frames = 2
 vertical_frames = 2
@@ -72,7 +72,9 @@ frame_rate = 3
 reset_frame = 0
 
 ```
-You will also need an executable, a capsule image (600x900 recommended), an optional background image, and any other optional stuff hinted at in this document.
+You will need the config, an executable, a capsule image (600x900 recommended), an optional background image, and any other optional stuff hinted at in this document. 
+
+For CGDA arcades see our Google doc and join the Discord. Note that you'll need to add Middle mouse to insta-quit, plus 3 minute timeout of inactivity quit, if you want your game to be kept in long-term public-running cabinets.
 
 ## How to add setup the launcher with a list of games
 
@@ -167,7 +169,7 @@ Set 'visible = false' to quickly hide broken games without deleting them.
 
 ## Attributes
 
-Officially supported attributes:
+Filter-supported attributes:
 - multiplayer
 - singleplayer
 - coop
