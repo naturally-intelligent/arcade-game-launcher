@@ -121,6 +121,7 @@ platform = "linux"
 enforce_platform = false
 show_categories = false
 show_version = true
+show_filters = true
 overlay = "an-overlay-image.png"
 allow_animated_capsules = true
 show_qr_codes = true

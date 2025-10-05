@@ -13,6 +13,7 @@ class_name ArcadeLauncher
 @export var screensaver := false
 @export var allow_mouse := false
 @export var allow_bbtitles := true
+@export var show_filters := true
 @export var show_qr_codes := true
 @export var randomize := true
 @export var recent_max := 3
@@ -570,6 +571,7 @@ func load_launcher_config() -> void:
 			allow_mouse = launcher_config.get_value("LAUNCHER", "allow_mouse", allow_mouse)
 			recent_max = int(launcher_config.get_value("LAUNCHER", "recent_max", recent_max))
 			allow_bbtitles = launcher_config.get_value("LAUNCHER", "allow_bbtitles", allow_bbtitles)
+			show_filters = launcher_config.get_value("LAUNCHER", "show_filters", show_filters)
 			show_qr_codes = launcher_config.get_value("LAUNCHER", "show_qr_codes", show_qr_codes)
 			show_version = launcher_config.get_value("LAUNCHER", "show_version", show_version)
 			screensaver = launcher_config.get_value("AUTOMATION", "screensaver", screensaver)
@@ -595,7 +597,9 @@ func connect_filters():
 		if filter in filters:
 			if not filters[filter]:
 				filter_button.queue_free()
-
+	if not show_filters:
+		%Filters.visible = false
+		
 func _on_filter_pressed(filter_button: Filter):
 	var filter: String = filter_button.name
 	match filter:
@@ -650,6 +654,9 @@ func _on_recent_filter_pressed() -> void:
 	filter_focused = false
 
 func handle_filter_navigation(event: InputEvent) -> void:
+	if not show_filters:
+		return
+		
 	if not filter_container or filter_container.get_child_count() == 0:
 		return
 	
