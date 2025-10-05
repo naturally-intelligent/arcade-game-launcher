@@ -125,6 +125,7 @@ func refresh_game_buttons(game_button_tscn: PackedScene, allow_random := true) -
 		var game: Game = filtered_games[key]
 		if game.visible:
 			var game_button: GameButton = game_button_tscn.instantiate()
+			game_button.launcher = launcher
 			game_button.game_name = game.subdirectory
 			game_button.game = game
 			game_buttons.append(game_button)

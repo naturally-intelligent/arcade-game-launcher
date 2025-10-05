@@ -16,6 +16,7 @@ class_name ArcadeLauncher
 @export var show_qr_codes := true
 @export var randomize := true
 @export var recent_max := 3
+@export var allow_animated_capsules := true
 
 var pid_watching: int = -1
 var games: Dictionary
@@ -575,6 +576,7 @@ func load_launcher_config() -> void:
 			autoscroll = launcher_config.get_value("AUTOMATION", "autoscroll", autoscroll)
 			log_file = launcher_config.get_value("LOGGING", "log_file", log_file)
 			randomize = launcher_config.get_value("LOGGING", "randomize", randomize)
+			allow_animated_capsules = launcher_config.get_value("LAUNCHER", "allow_animated_capsules", allow_animated_capsules)
 			# load filters
 			if launcher_config.has_section("FILTERS"):
 				for filter: String in launcher_config.get_section_keys("FILTERS"):

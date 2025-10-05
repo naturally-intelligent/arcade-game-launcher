@@ -5,6 +5,7 @@ class_name GameButton
 var game_name: String 
 var game: Game
 var tween: Tween
+var launcher: ArcadeLauncher
 
 var animated := false
 var animation_tween: Tween
@@ -66,7 +67,7 @@ func _on_pressed():
 	pass
 
 func load_capsule_texture() -> Texture:
-	if game.animated_capsule:
+	if game.animated_capsule and launcher.allow_animated_capsules:
 		var animated_capsule_path = game.get_file("animated_capsule")
 		if animated_capsule_path:
 			var animated_capsule_texture = _load_animated_capsule_texture(animated_capsule_path)

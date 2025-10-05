@@ -122,6 +122,7 @@ enforce_platform = false
 show_categories = false
 show_version = true
 overlay = "an-overlay-image.png"
+allow_animated_capsules = true
 show_qr_codes = true
 randomize = true
 recent_max = 3
