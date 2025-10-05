@@ -97,6 +97,8 @@ func _ready() -> void:
 	if not allow_mouse:
 		$LeftButton.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		$RightButton.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	
+	%QR.visible = false
 		
 	# AUTOMATION (screensaver, autoscroll)
 	screensaver_setup()
@@ -317,19 +319,21 @@ func on_game_btn_focused(game_button: GameButton) -> void:
 	
 	show_attributes(game_button.game)
 
-	var background_path = game_button.game.get_file("background")
+	var background_path := game_button.game.get_file("background")
+	var using_bg := false
 	if FileAccess.file_exists(background_path):
 		var texture: ImageTexture = util.load_image_texture(background_path)
 		if texture: 
 			%Background.blend_textures_animated(%Background.get_shader_texture(1), texture, 0.4)
-			return
-	%Background.blend_textures_animated(%Background.get_shader_texture(1), default_bg, 0.4)
+			using_bg = true
+	if not using_bg:
+		%Background.blend_textures_animated(%Background.get_shader_texture(1), default_bg, 0.4)
 	
 	%QR.visible = false
 	if show_qr_codes:
 		if game_button.game.qr:
 			%QR.visible = true
-			%QR.texture = game_button.load_image_texture(game_button.game.get_file("qr"))
+			%QR.texture = util.load_image_texture(game_button.game.get_file("qr"))
 
 func on_game_btn_pressed(game_button: GameButton) -> void:
 	hide_load_screen()
