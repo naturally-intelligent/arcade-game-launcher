@@ -39,6 +39,7 @@ var animated_capsule_hframes: int
 var animated_capsule_vframes: int
 var animated_capsule_frame_count: int
 var animated_capsule_frame_rate: int
+var animated_capsule_pause_frame: int
 
 # INTERNAL
 var sort_order: int
@@ -75,6 +76,7 @@ func parse_config():
 	animated_capsule_vframes = config.get_value("ANIMATED CAPSULE", "vertical_frames", 1)
 	animated_capsule_frame_count = config.get_value("ANIMATED CAPSULE", "frame_count", 1)
 	animated_capsule_frame_rate = config.get_value("ANIMATED CAPSULE", "frame_rate", 12)
+	animated_capsule_pause_frame = config.get_value("ANIMATED CAPSULE", "pause_frame", 0)
 	
 	for key in config.get_section_keys("ATTRIBUTES"):
 		attributes[key] = config.get_value("ATTRIBUTES", key)

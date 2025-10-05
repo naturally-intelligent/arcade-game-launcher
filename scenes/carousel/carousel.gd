@@ -8,6 +8,7 @@ class_name GamesCarousel
 var tween: Tween
 var selected_idx := 0
 var can_move: bool = true
+var randomize := true
 
 # Filtering
 var all_games: Dictionary = {}
@@ -110,7 +111,7 @@ func get_all_attributes() -> Array[String]:
 
 # WARNING: AI-generated code below
 
-func refresh_game_buttons(game_button: PackedScene) -> Array:
+func refresh_game_buttons(game_button_tscn: PackedScene, allow_random := true) -> Array:
 	# Clear existing buttons immediately
 	var children = get_children()
 	for child in children:
@@ -119,18 +120,24 @@ func refresh_game_buttons(game_button: PackedScene) -> Array:
 	
 	#print("DEBUG: Creating ", filtered_games.size(), " game buttons from filtered games")
 	
-	var count: int = 0
+	var game_buttons := []
 	for key in filtered_games.keys():
 		var game: Game = filtered_games[key]
 		if game.visible:
-			var instance: GameButton = game_button.instantiate()
-			instance.game_name = game.subdirectory
-			instance.game = game
-			add_child(instance)
-			instance.position -= instance.size / 2.0
-			instance.position.x += (instance.size.x + button_offset.x) * count
-			count += 1
+			var game_button: GameButton = game_button_tscn.instantiate()
+			game_button.game_name = game.subdirectory
+			game_button.game = game
+			game_buttons.append(game_button)
 			#print("DEBUG: Created button for game: ", game.title)
+	
+	if randomize and allow_random:
+		game_buttons.shuffle()
+	var count: int = 0
+	for game_button in game_buttons:
+		game_button.position -= game_button.size / 2.0
+		game_button.position.x += (game_button.size.x + button_offset.x) * count
+		add_child(game_button)
+		count += 1
 	
 	# Reset selection to first item
 	selected_idx = 0
@@ -164,33 +171,33 @@ func filter_by_attribute(attribute: String, game_button: PackedScene) -> void:
 	refresh_game_buttons(game_button)
 
 # Date-based sorting (no threshold)
-func filter_by_recent_date(game_button: PackedScene, _days: int = 30) -> void:
+func filter_by_recent_date(game_button: PackedScene, recent_max := 3, _days: int = 30) -> void:
 	# Sort all games by date_added (most recent first), games without dates go to back
 	var games_with_dates: Array = []
-	var games_without_dates: Array = []
 	
 	# Separate games with and without dates
 	for key in all_games.keys():
 		var game: Game = all_games[key]
+		print(game.title, game.date_added)
 		if game.date_added != "":
 			games_with_dates.append({"key": key, "game": game, "date": game.date_added})
-		else:
-			games_without_dates.append({"key": key, "game": game})
 	
 	# Sort games with dates by date (most recent first)
 	games_with_dates.sort_custom(func(a, b): return util.is_date_after(a.date, b.date))
+	
+	if games_with_dates.is_empty():
+		return
 	
 	# Rebuild filtered_games with sorted order
 	filtered_games.clear()
 	
 	# Add games with dates first (sorted by most recent)
+	var count := 0
 	for item in games_with_dates:
-		filtered_games[item.key] = item.game
-	
-	# Add games without dates at the end
-	for item in games_without_dates:
-		filtered_games[item.key] = item.game
+		count += 1
+		if count <= recent_max:
+			filtered_games[item.key] = item.game
 	
 	#print("DEBUG: Sorted ", games_with_dates.size(), " games with dates, ", games_without_dates.size(), " without dates")
 	active_filter = "recent"
-	refresh_game_buttons(game_button)
+	refresh_game_buttons(game_button, false)

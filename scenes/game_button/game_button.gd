@@ -37,23 +37,30 @@ func _on_focus_entered() -> void:
 	emit_signal("focused", self)
 	toggle_focus_visuals(true)
 	if animated:
-		animation_tween.play()
+		resume_animation()
 
 func _on_mouse_entered() -> void:
 	emit_signal("focused", self)
 	toggle_focus_visuals(true)
 	if animated:
-		animation_tween.play()
+		resume_animation()
 
 func _on_focus_exited():
 	toggle_focus_visuals(false)
 	if animated:
-		animation_tween.pause()
+		pause_animation()
 
 func _on_mouse_exited():
 	toggle_focus_visuals(false)
 	if animated:
-		animation_tween.pause()
+		pause_animation()
+
+func resume_animation():
+	animation_tween.play()
+
+func pause_animation():
+	animation_tween.pause()
+	capsule.texture._set_animation_frame(game.animated_capsule_pause_frame)
 
 func _on_pressed():
 	pass

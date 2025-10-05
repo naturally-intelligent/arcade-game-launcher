@@ -69,6 +69,7 @@ horizontal_frames = 2
 vertical_frames = 2
 frame_count = 4
 frame_rate = 3
+reset_frame = 0
 
 ```
 You will also need an executable, a capsule image (600x900 recommended), an optional background image, and any other optional stuff hinted at in this document.
@@ -122,6 +123,8 @@ show_categories = false
 show_version = true
 overlay = "an-overlay-image.png"
 show_qr_codes = true
+randomize = true
+recent_max = 3
 
 [AUTOMATION]
 autoscroll = true
@@ -170,6 +173,11 @@ Officially supported attributes:
 - leaderboards
 - trackball
 
+Additional attributes:
+- arcadejam
+- albertajam
+- globalgamejam
+
 ## Arcade Fork
 
 We forked this launcher to make a version for CGDA (Calgary Game Developers Association, https://www.calgary.games/). This is for a standup arcade cabinet, used for gamejam collections and showcasing locally made games. 
@@ -185,12 +193,12 @@ New features of this fork include:
 - Filters
 - Logging
 - Animated Capsules
+- Recently Added Sort
+- Random Sort
 - and more!
 
 Future features planned:
-- Recently Added Sort
 - Most Played Sort
-- Random Sort
 - Leaderboard Plugin Integration
 - Better Stats Logging
 
@@ -205,4 +213,3 @@ MrEliptik is the original creator of the game launcher:
 https://github.com/MrEliptik/game_launcher
 
 We've deviated too far to merge!
-

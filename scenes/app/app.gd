@@ -14,6 +14,8 @@ class_name ArcadeLauncher
 @export var allow_mouse := false
 @export var allow_bbtitles := true
 @export var show_qr_codes := true
+@export var randomize := true
+@export var recent_max := 3
 
 var pid_watching: int = -1
 var games: Dictionary
@@ -30,12 +32,8 @@ var console_spam := 0
 var autoscroll_direction := 1
 var screensaver_tween: Tween
 
-@onready var bg: TextureRect = $Background
 @onready var pid_timer: Timer = $Timers/PIDTimer
-@onready var games_container: GamesCarousel = $Carousel
 @onready var no_game_found = $NoGameFound
-@onready var title: RichTextLabel = %Title
-@onready var description: RichTextLabel = %Description
 @onready var version_btn = $VersionBtn
 
 @onready var check_for_updates := false
@@ -86,7 +84,8 @@ func _ready() -> void:
 		no_game_found.visible = true
 	
 	# UI
-	var buttons: Array = games_container.create_game_buttons(game_button_tscn, games)
+	%Carousel.randomize = randomize
+	var buttons: Array = %Carousel.create_game_buttons(game_button_tscn, games)
 	for game_button: GameButton in buttons:
 		game_button.focused.connect(on_game_btn_focused)
 		game_button.pressed.connect(on_game_btn_pressed.bind(game_button))
@@ -262,7 +261,7 @@ func launch_game(game_name: String) -> bool:
 		return false
 	var executable_path: String = game.get_file("executable")
 	if FileAccess.file_exists(executable_path):
-		games_container.can_move = false
+		%Carousel.can_move = false
 		pid_watching = OS.create_process(executable_path, game.arguments)
 		pid_timer.start()
 		show_load_screen(game.title)
@@ -280,7 +279,7 @@ func stop_game(pid: int) -> void:
 	current_game = null
 	add_notice("Returned control to launcher.", verbose)
 	if pid_watching < 0: return
-	games_container.can_move = true
+	%Carousel.can_move = true
 	OS.kill(pid)
 	reset_automation()
 	start_allow_launch_timer()
@@ -294,7 +293,7 @@ func on_pid_timer_timeout() -> void:
 		add_notice("Game stopped.", verbose)
 		pid_timer.stop()
 		pid_watching = -1
-		games_container.can_move = true
+		%Carousel.can_move = true
 		DisplayServer.window_move_to_foreground()
 		reset_automation()
 		hide_load_screen()
@@ -305,14 +304,14 @@ func on_game_btn_focused(game_button: GameButton) -> void:
 	hide_load_screen()
 
 	if not game_button.game.description:
-		description.text = "No Description."
+		%Description.text = "No Description."
 	else:
-		description.text = game_button.game.description
+		%Description.text = game_button.game.description
 	
 	if allow_bbtitles:
-		title.text = '[center]'+game_button.game.bbtitle+'[/center]'
+		%Title.text = '[center]'+game_button.game.bbtitle+'[/center]'
 	else:
-		title.text = '[center]'+game_button.game.title+'[/center]'
+		%Title.text = '[center]'+game_button.game.title+'[/center]'
 	
 	show_attributes(game_button.game)
 
@@ -320,9 +319,9 @@ func on_game_btn_focused(game_button: GameButton) -> void:
 	if FileAccess.file_exists(background_path):
 		var texture: ImageTexture = util.load_image_texture(background_path)
 		if texture: 
-			bg.blend_textures_animated(bg.get_shader_texture(1), texture, 0.4)
+			%Background.blend_textures_animated(%Background.get_shader_texture(1), texture, 0.4)
 			return
-	bg.blend_textures_animated(bg.get_shader_texture(1), default_bg, 0.4)
+	%Background.blend_textures_animated(%Background.get_shader_texture(1), default_bg, 0.4)
 	
 	%QR.visible = false
 	if show_qr_codes:
@@ -354,7 +353,7 @@ func on_released_parsed(release: Dictionary) -> void:
 func is_interactive():
 	if pid_watching > 0:
 		return false
-	return games_container.can_move
+	return %Carousel.can_move
 
 func start_allow_launch_timer():
 	# adds a 1 second delay before allowing launch...
@@ -379,16 +378,16 @@ func add_notice(text: String, use_verbose := false, add_to_front := false) -> vo
 # MOUSE - edge of screen scrolling
 
 func _on_left_button_pressed() -> void:
-	games_container.scroll_left()
+	%Carousel.scroll_left()
 
 func _on_right_button_pressed() -> void:
-	games_container.scroll_right()
+	%Carousel.scroll_right()
 
 func _on_left_mouse_entered() -> void:
-	games_container.scroll_left()
+	%Carousel.scroll_left()
 
 func _on_right_mouse_entered() -> void:
-	games_container.scroll_right()
+	%Carousel.scroll_right()
 
 # OVERLAY
 
@@ -435,10 +434,10 @@ func _on_autoscroll_start_timer():
 func _on_autoscroll_timer():
 	if is_interactive() and not is_screensaver_visible():
 		if autoscroll_direction == 1:
-			if not games_container.scroll_right():
+			if not %Carousel.scroll_right():
 				autoscroll_direction = -1
 		else:
-			if not games_container.scroll_left():
+			if not %Carousel.scroll_left():
 				autoscroll_direction = 1
 
 func stop_autoscrolling():
@@ -568,12 +567,14 @@ func load_launcher_config() -> void:
 			verbose_console = launcher_config.get_value("LAUNCHER", "verbose_console", verbose_console)
 			check_for_updates = launcher_config.get_value("LAUNCHER", "check_for_updates", check_for_updates)
 			allow_mouse = launcher_config.get_value("LAUNCHER", "allow_mouse", allow_mouse)
+			recent_max = int(launcher_config.get_value("LAUNCHER", "recent_max", recent_max))
 			allow_bbtitles = launcher_config.get_value("LAUNCHER", "allow_bbtitles", allow_bbtitles)
 			show_qr_codes = launcher_config.get_value("LAUNCHER", "show_qr_codes", show_qr_codes)
 			show_version = launcher_config.get_value("LAUNCHER", "show_version", show_version)
 			screensaver = launcher_config.get_value("AUTOMATION", "screensaver", screensaver)
 			autoscroll = launcher_config.get_value("AUTOMATION", "autoscroll", autoscroll)
 			log_file = launcher_config.get_value("LOGGING", "log_file", log_file)
+			randomize = launcher_config.get_value("LOGGING", "randomize", randomize)
 			# load filters
 			if launcher_config.has_section("FILTERS"):
 				for filter: String in launcher_config.get_section_keys("FILTERS"):
@@ -611,10 +612,10 @@ func _on_filter_pressed(filter_button: Filter):
 # WARNING: AI-generated code below
 
 func filter_attribute(filter: String) -> void:
-	games_container.filter_by_attribute(filter, game_button_tscn)
+	%Carousel.filter_by_attribute(filter, game_button_tscn)
 	
 	# Reconnect button signals after filtering
-	var buttons = games_container.get_children()
+	var buttons = %Carousel.get_children()
 	#print("DEBUG: Found ", buttons.size(), " game buttons after filtering")
 	for b: GameButton in buttons:
 		if not b.focused.is_connected(on_game_btn_focused):
@@ -630,10 +631,10 @@ func filter_attribute(filter: String) -> void:
 	update_filter_button_focus()
 
 func _on_recent_filter_pressed() -> void:
-	games_container.filter_by_recent_date(game_button_tscn)  # Sort by date (no threshold)
+	%Carousel.filter_by_recent_date(game_button_tscn, recent_max)  # Sort by date (no threshold)
 	
 	# Reconnect button signals after filtering
-	var buttons = games_container.get_children()
+	var buttons = %Carousel.get_children()
 	for b: GameButton in buttons:
 		if not b.focused.is_connected(on_game_btn_focused):
 			b.focused.connect(on_game_btn_focused)
@@ -661,7 +662,7 @@ func handle_filter_navigation(event: InputEvent) -> void:
 	# Switch back to game carousel with down arrow
 	if event.is_action_pressed("ui_down") and filter_focused:
 		filter_focused = false
-		games_container.focus_selected()
+		%Carousel.focus_selected()
 		get_viewport().set_input_as_handled()
 		return
 	
@@ -700,12 +701,12 @@ func update_filter_button_focus() -> void:
 
 func auto_select_first_game() -> void:
 	# Get the first game button from the filtered list
-	var game_buttons = games_container.get_children()
+	var game_buttons = %Carousel.get_children()
 	if game_buttons.size() > 0:
 		var first_game_button = game_buttons[0] as GameButton
 		if first_game_button:
 			# Set the carousel selected index
-			games_container.selected_idx = 0
+			%Carousel.selected_idx = 0
 			# Force focus on the first game button (this will handle everything)
 			call_deferred("_force_focus_first_game", first_game_button)
 

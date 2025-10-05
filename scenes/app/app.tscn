@@ -17,7 +17,7 @@
 shader = ExtResource("4_7um57")
 shader_parameter/texture_1 = ExtResource("3_0g1gi")
 shader_parameter/texture_2 = ExtResource("5_o0uvn")
-shader_parameter/mix_value = 0.72
+shader_parameter/mix_value = 0.0
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_qsltc"]
 shader = ExtResource("3_n8sr3")
@@ -114,8 +114,10 @@ grow_vertical = 2
 theme = ExtResource("1_g7tpw")
 script = ExtResource("1_ov0up")
 default_bg = ExtResource("3_0g1gi")
+metadata/_edit_vertical_guides_ = [960.0]
 
 [node name="Background" type="TextureRect" parent="."]
+unique_name_in_owner = true
 self_modulate = Color(0.201527, 0.201527, 0.201527, 1)
 material = SubResource("ShaderMaterial_psg6v")
 layout_mode = 1
@@ -143,7 +145,7 @@ texture = ExtResource("3_0g1gi")
 metadata/_edit_lock_ = true
 
 [node name="Darken" type="ColorRect" parent="Background"]
-self_modulate = Color(0, 0, 0, 0.321569)
+self_modulate = Color(0, 0, 0, 0.678431)
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -155,6 +157,7 @@ color = Color(0, 0, 0, 1)
 metadata/_edit_lock_ = true
 
 [node name="Carousel" parent="." node_paths=PackedStringArray("launcher") instance=ExtResource("8_gjd2l")]
+unique_name_in_owner = true
 layout_mode = 0
 anchors_preset = 0
 anchor_left = 0.0
@@ -175,7 +178,9 @@ anchors_preset = 12
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_left = 354.0
 offset_top = -389.0
+offset_right = -356.0
 offset_bottom = 1294.0
 grow_horizontal = 2
 grow_vertical = 0
@@ -301,6 +306,7 @@ icon_index = 32
 metadata/_edit_horizontal_guides_ = [60.0]
 
 [node name="most" parent="Filters" instance=ExtResource("10_qt8c2")]
+visible = false
 layout_mode = 2
 text = "Most Played  "
 button_text = "Most Played"
@@ -348,6 +354,7 @@ icon_index = 3
 metadata/_edit_horizontal_guides_ = [60.0]
 
 [node name="random" parent="Filters" instance=ExtResource("10_qt8c2")]
+visible = false
 layout_mode = 2
 text = "Random  "
 button_text = "Random"
@@ -404,9 +411,9 @@ layout_mode = 2
 text = "Leaderboards"
 icon = 3
 
-[node name="gamejam" parent="AttributesAlign/Attributes" instance=ExtResource("10_ctef4")]
+[node name="globalgamejam" parent="AttributesAlign/Attributes" instance=ExtResource("10_ctef4")]
 layout_mode = 2
-text = "Game Jam Entry"
+text = "Global Game Jam Entry"
 icon = 16
 
 [node name="arcadejam" parent="AttributesAlign/Attributes" instance=ExtResource("10_ctef4")]
