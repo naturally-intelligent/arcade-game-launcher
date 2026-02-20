@@ -682,11 +682,11 @@ func handle_filter_navigation(event: InputEvent) -> void:
 	# Handle tag navigation when focused
 	if filter_focused:
 		if event.is_action_pressed("ui_left"):
-			current_filter_index = max(0, current_filter_index - 1)
+			prev_visible_filter_index()
 			update_filter_button_focus()
 			get_viewport().set_input_as_handled()
 		elif event.is_action_pressed("ui_right"):
-			current_filter_index = min(filter_container.get_child_count() - 1, current_filter_index + 1)
+			next_visible_filter_index()
 			update_filter_button_focus()
 			get_viewport().set_input_as_handled()
 		elif event.is_action_pressed("ui_accept"):
@@ -695,6 +695,36 @@ func handle_filter_navigation(event: InputEvent) -> void:
 			if tag_button is Button:
 				tag_button.emit_signal("pressed")
 			get_viewport().set_input_as_handled()
+
+func prev_visible_filter_index():
+	current_filter_index -= 1
+	if current_filter_index < 0:
+		current_filter_index = filter_container.get_child_count() - 1
+	var focused_button: Filter = filter_container.get_child(current_filter_index)
+	var loop_safety := 0
+	while not focused_button.visible:
+		current_filter_index -= 1
+		if current_filter_index < 0:
+			current_filter_index = filter_container.get_child_count() - 1
+		focused_button = filter_container.get_child(current_filter_index)
+		loop_safety += 1
+		if loop_safety > 32:
+			return
+
+func next_visible_filter_index():
+	current_filter_index += 1
+	if current_filter_index >= filter_container.get_child_count():
+		current_filter_index = 0
+	var focused_button: Filter = filter_container.get_child(current_filter_index)
+	var loop_safety := 0
+	while not focused_button.visible:
+		current_filter_index += 1
+		if current_filter_index >= filter_container.get_child_count():
+			current_filter_index = 0
+		focused_button = filter_container.get_child(current_filter_index)
+		loop_safety += 1
+		if loop_safety > 32:
+			return
 
 func update_filter_button_focus() -> void:
 	if not filter_container:
